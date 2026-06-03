@@ -823,6 +823,9 @@ body { color: var(--text-main); }
       <datalist id="rfg-pt-dl"></datalist>
       <div id="rfg-pt-hint" style="font-size:11px;color:var(--steel);margin-top:4px;display:none">No drilling record found — manual entry</div>
     </div>
+    <div class="fg"><label class="lbl req">Grout Stage</label>
+      <input class="inp" id="rfg-stage" type="text" placeholder="e.g. Stage 1, S1, Primary" autocomplete="off" autocorrect="off" autocapitalize="off">
+    </div>
     <div id="rfg-ref" style="display:none" class="ref-panel">
       <div class="ref-title">Drilling Reference</div>
       <div class="ref-name" id="rfg-ref-name"></div>
@@ -858,10 +861,10 @@ body { color: var(--text-main); }
       <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase">Reported Lugeon (max)</span>
       <span style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--k-orange)" id="lu-rep">—</span>
     </div>
-    <div class="slbl">Grout Mix Stages</div>
+    <div class="slbl">Grout Mix</div>
     <div style="overflow-x:auto;margin-bottom:4px">
       <table class="mtbl"><thead><tr>
-        <th style="width:42px">Stage</th><th style="width:52px">Type</th>
+        <th style="width:42px">Mix</th><th style="width:52px">Type</th>
         <th style="width:60px">W/C</th><th style="width:68px">Vol (L)</th>
         <th style="width:44px">P/V/L</th><th style="width:28px"></th>
       </tr></thead><tbody id="rfg-mix-rows"></tbody></table>
@@ -928,26 +931,38 @@ body { color: var(--text-main); }
       <datalist id="tam-pt-dl"></datalist>
       <div id="tam-pt-hint" style="font-size:11px;color:var(--steel);margin-top:4px;display:none">No drilling record — manual entry</div>
     </div>
+    <div class="fg2">
+      <div><label class="lbl req">Grout Bottom (m)</label>
+        <input class="inp" id="tam-bot" type="number" step="0.01" placeholder="m" oninput="tamGenStages()"></div>
+      <div><label class="lbl req">Grout Top (m)</label>
+        <input class="inp" id="tam-top" type="number" step="0.01" placeholder="m" oninput="tamGenStages()"></div>
+    </div>
     <div id="tam-ref" style="display:none" class="ref-panel">
       <div class="ref-title">Drilling Reference</div>
       <div class="ref-name" id="tam-ref-name"></div>
       <div class="ref-row" id="tam-ref-r1"></div>
     </div>
-    <div class="slbl">Pass &amp; Sleeve</div>
+    <div class="slbl">Pass &amp; Injection</div>
     <div class="fg2">
       <div><label class="lbl">Pass</label>
         <div style="display:flex;gap:8px;margin-top:2px">
           <button id="tam-p1" style="flex:1;height:44px;background:var(--k-navy);color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer" onclick="setTAMPass(1)">PASS 1</button>
           <button id="tam-p2" style="flex:1;height:44px;background:var(--white);color:var(--slate);border:1.5px solid var(--border);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.04em;cursor:pointer" onclick="setTAMPass(2)">PASS 2</button>
         </div></div>
-      <div><label class="lbl">Total sleeve length (m)</label><input class="inp" id="tam-len" type="number" step="0.5" placeholder="m" oninput="tamGenStages()"></div>
+      <div><label class="lbl">Length per Stage (m)</label>
+        <input class="inp" id="tam-lps" type="number" step="0.01" placeholder="m/stage" oninput="tamGenStages()"></div>
     </div>
-    <div class="fg"><label class="lbl">Volume/m (L/m)</label><input class="inp" id="tam-vpm" type="number" step="0.1" placeholder="L/m" oninput="tamApplyVpm()"></div>
-    <div class="slbl">TAM Stages <span style="font-size:10px;font-weight:400;color:var(--steel)">(0.5 m per stage)</span></div>
+    <div class="fg2">
+      <div><label class="lbl">Volume/m (L/m)</label>
+        <input class="inp" id="tam-vpm" type="number" step="0.1" placeholder="L/m" oninput="tamGenStages()"></div>
+      <div><label class="lbl">Vol Limit per Stage — auto</label>
+        <div class="ro" id="tam-vollimit">—</div></div>
+    </div>
+    <div class="slbl">TAM Stages <span id="tam-stage-hint" style="font-size:10px;font-weight:400;color:var(--steel)">— enter grout depths and length per stage</span></div>
     <div style="overflow-x:auto;margin-bottom:4px">
       <table class="mtbl"><thead><tr>
         <th style="width:44px">Stage</th><th style="width:72px">Vol (L)</th>
-        <th style="width:72px">Pressure (bar)</th><th>Remarks</th><th style="width:28px"></th>
+        <th style="width:72px">Pressure (bar)</th><th style="width:80px">Vol Limit (L)</th><th style="width:28px"></th>
       </tr></thead><tbody id="tam-rows"></tbody></table>
     </div>
     <button class="add-row" id="tam-add" onclick="addTAMRow()">+ Add Stage</button>
@@ -1115,7 +1130,7 @@ body { color: var(--text-main); }
 
 const SB_URL='https://xprmrqmuwteelalpayfz.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhwcm1ycW11d3RlZWxhbHBheWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzM2NTMsImV4cCI6MjA5NTcwOTY1M30.8XAt0_Ab228t0P-wvQIjhlmHygutwV_mxE4bF3XtbxI';
 const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
-const FM={'appId':'app_id','projectCode':'project_code','pointNo':'point_no','drillStartDate':'drill_start_date','groutingCompletion':'grouting_completion','groundLevel':'ground_level','soilLength':'soil_length','rockLength':'rock_length','totalLength':'total_length','sleevePipeLength':'sleeve_pipe_length','nonSleevePipeLength':'non_sleeve_pipe_length','appModified':'app_modified','appCreated':'app_created','groutType':'grout_type','groutStatus':'grout_status','groutBottom':'grout_bottom','groutTop':'grout_top','groutingLength':'grouting_length','lugeonType':'lugeon_type','lugeonReported':'lugeon_reported','lugeonStages':'lugeon_stages','volPerM':'vol_per_m','totalVolumeCalc':'total_volume_calc','rfgMixes':'rfg_mixes','totalOPC':'total_opc','totalMFC':'total_mfc','totalCement':'total_cement','tamPass':'tam_pass','tamTotalLength':'tam_total_length','tamVolPerM':'tam_vol_per_m','tamStages':'tam_stages','tamTotalVol':'tam_total_vol','sleevePipe':'sleeve_pipe','isLocked':'is_locked'};
+const FM={'appId':'app_id','projectCode':'project_code','pointNo':'point_no','drillStartDate':'drill_start_date','groutingCompletion':'grouting_completion','groundLevel':'ground_level','soilLength':'soil_length','rockLength':'rock_length','totalLength':'total_length','sleevePipeLength':'sleeve_pipe_length','nonSleevePipeLength':'non_sleeve_pipe_length','appModified':'app_modified','appCreated':'app_created','groutType':'grout_type','groutStatus':'grout_status','groutBottom':'grout_bottom','groutTop':'grout_top','groutingLength':'grouting_length','lugeonType':'lugeon_type','lugeonReported':'lugeon_reported','lugeonStages':'lugeon_stages','volPerM':'vol_per_m','totalVolumeCalc':'total_volume_calc','rfgMixes':'rfg_mixes','totalOPC':'total_opc','totalMFC':'total_mfc','totalCement':'total_cement','tamPass':'tam_pass','tamTotalLength':'tam_total_length','tamVolPerM':'tam_vol_per_m','tamStages':'tam_stages','tamTotalVol':'tam_total_vol','sleevePipe':'sleeve_pipe','isLocked':'is_locked','groutStage':'grout_stage','lengthPerStage':'length_per_stage','volLimit':'vol_limit'};
 const FM_REV=Object.fromEntries(Object.entries(FM).map(([k,v])=>[v,k]));
 const JSONB=new Set(['strata','rfg_mixes','tam_stages','lugeon_stages']);
 function toSB(o){const r={};for(const k of Object.keys(o)){if(k==='_spId'||k==='_rowIndex'||k==='id')continue;const sk=FM[k]||k,v=o[k];if(v===null||v===undefined){r[sk]=null;continue;}if(JSONB.has(sk)){r[sk]=(typeof v==='string')?JSON.parse(v):v;continue;}if(typeof v==='object'){r[sk]=JSON.stringify(v);continue;}r[sk]=v;}if(o.id)r.app_id=String(o.id);// Always explicitly send is_locked as boolean
@@ -1450,15 +1465,15 @@ function calcLuRow(inp){const tr=inp.closest('tr');const ins=tr.querySelectorAll
 function rfgRecalcLu(){document.querySelectorAll('#lu-rows tr').forEach(tr=>{const i=tr.querySelectorAll('input');if(i.length)calcLuRow(i[0]);});}
 function updLuRep(){const vals=Array.from(document.querySelectorAll('#lu-rows .lv')).map(td=>parseFloat(td.textContent)).filter(v=>!isNaN(v));document.getElementById('lu-rep').textContent=vals.length?Math.max(...vals):'—';}
 function getLuRows(){return Array.from(document.querySelectorAll('#lu-rows tr')).map((tr,i)=>{const ins=tr.querySelectorAll('input');const v=tr.querySelector('.lv');return{stage:i+1,pressure:ins[0].value,time:ins[1].value,vol:ins[2].value,lugeon:v?v.textContent:'—'};});}
-function addMixRow(d){const tb=document.getElementById('rfg-mix-rows');d=d||{stage:'1',type:'OPC',wc:'',vol:'',pvl:''};const tr=document.createElement('tr');tr.innerHTML=`<td><input class="mx" type="number" min="1" value="${d.stage}" oninput="rfgCalc()" style="width:40px;text-align:center"></td><td><select class="mxs" onchange="mColor(this);rfgCalc()" style="width:50px"><option ${d.type==='OPC'?'selected':''}>OPC</option><option ${d.type==='MFC'?'selected':''}>MFC</option></select></td><td><input class="mx" type="number" step="0.1" value="${d.wc||''}" placeholder="1.5" oninput="rfgCalc()" style="width:58px"></td><td><input class="mx" type="number" step="1" value="${d.vol||''}" placeholder="L" oninput="rfgCalc()" style="width:66px"></td><td><select class="mxs" style="width:42px"><option value="">—</option><option ${d.pvl==='P'?'selected':''}>P</option><option ${d.pvl==='V'?'selected':''}>V</option><option ${d.pvl==='L'?'selected':''}>L</option></select></td><td><button class="mxdel" onclick="this.closest('tr').remove();rfgCalc()">×</button></td>`;tb.appendChild(tr);mColor(tr.querySelector('select'));rfgCalc();}
+function addMixRow(d){const tb=document.getElementById('rfg-mix-rows');d=d||{stage:'1',type:'OPC',wc:'',vol:'',pvl:''};const tr=document.createElement('tr');tr.innerHTML=`<td><input class="mx" type="number" min="1" value="${d.stage}" oninput="rfgCalc()" style="width:40px;text-align:center" title="Mix No."></td><td><select class="mxs" onchange="mColor(this);rfgCalc()" style="width:50px"><option ${d.type==='OPC'?'selected':''}>OPC</option><option ${d.type==='MFC'?'selected':''}>MFC</option></select></td><td><input class="mx" type="number" step="0.1" value="${d.wc||''}" placeholder="1.5" oninput="rfgCalc()" style="width:58px"></td><td><input class="mx" type="number" step="1" value="${d.vol||''}" placeholder="L" oninput="rfgCalc()" style="width:66px"></td><td><select class="mxs" style="width:42px"><option value="">—</option><option ${d.pvl==='P'?'selected':''}>P</option><option ${d.pvl==='V'?'selected':''}>V</option><option ${d.pvl==='L'?'selected':''}>L</option></select></td><td><button class="mxdel" onclick="this.closest('tr').remove();rfgCalc()">×</button></td>`;tb.appendChild(tr);mColor(tr.querySelector('select'));rfgCalc();}
 function mColor(s){s.style.background=s.value==='OPC'?'var(--lgreen)':'var(--lamber)';s.style.color=s.value==='OPC'?'var(--green)':'var(--amber)';}
 function getMixRows(){return Array.from(document.querySelectorAll('#rfg-mix-rows tr')).map(tr=>{const i=tr.querySelectorAll('input,select');return{stage:i[0].value,type:i[1].value,wc:i[2].value,vol:i[3].value,pvl:i[4].value};});}
-function setRFGFields(lk){['rfg-op','rfg-pt','rfg-bot','rfg-top','rfg-vpm','rfg-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.querySelectorAll('#rfg-mix-rows input,#rfg-mix-rows select,#lu-rows input,#lu-s,#lu-m').forEach(e=>e.disabled=lk);const a=document.getElementById('rfg-mix-add');if(a)a.style.display=lk?'none':'block';}
+function setRFGFields(lk){['rfg-op','rfg-pt','rfg-stage','rfg-bot','rfg-top','rfg-vpm','rfg-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.querySelectorAll('#rfg-mix-rows input,#rfg-mix-rows select,#lu-rows input,#lu-s,#lu-m').forEach(e=>e.disabled=lk);const a=document.getElementById('rfg-mix-add');if(a)a.style.display=lk?'none':'block';}
 function openRFGForm(id){
   editRId=id;rfgPopPt();document.getElementById('rfg-mix-rows').innerHTML='';const lb=document.getElementById('rfg-lk-banner');
   if(id){const r=ld.grouting.find(g=>String(g.id)===String(id));if(!r)return;
     document.getElementById('rfg-hdr-title').textContent=r.isLocked?'RFG Record (Locked)':'RFG Record';
-    document.getElementById('rfg-op').value=r.operator||opName||'';document.getElementById('rfg-pt').value=String(r.pointNo||'');rfgLoadRef();
+    document.getElementById('rfg-op').value=r.operator||opName||'';document.getElementById('rfg-pt').value=String(r.pointNo||'');document.getElementById('rfg-stage').value=r.groutStage||'';rfgLoadRef();
     document.getElementById('rfg-bot').value=r.groutBottom||'';document.getElementById('rfg-top').value=r.groutTop||'';document.getElementById('rfg-vpm').value=r.volPerM||'';document.getElementById('rfg-rem').value=r.remarks||'';
     (r.rfgMixes||[]).forEach(m=>addMixRow(m));lugType=r.lugeonType||'Simple';setLuType(lugType);if(r.lugeonStages&&r.lugeonStages.length)buildLuRows(lugType,r.lugeonStages);
     const isLk=(r.isLocked||r.groutStatus==='Submitted');const lk=isLk&&!isAdmin;if(lb)lb.style.display=isLk&&!isAdmin?'flex':'none';setRFGFields(lk);
@@ -1466,6 +1481,7 @@ function openRFGForm(id){
     document.getElementById('rfg-admin-btns').style.display=isAdmin?'block':'none';
   }else{
     document.getElementById('rfg-hdr-title').textContent='New RFG Record';
+    document.getElementById('rfg-stage').value='';
     ['rfg-bot','rfg-top','rfg-vpm','rfg-rem'].forEach(i=>{document.getElementById(i).value='';document.getElementById(i).disabled=false;});
     document.getElementById('rfg-op').value=opName;document.getElementById('rfg-op').disabled=false;
     document.getElementById('rfg-pt').value='';document.getElementById('rfg-pt').disabled=false;
@@ -1482,7 +1498,7 @@ async function saveRFG(status){
   const dRec=ld.drilling.find(d=>d.projectCode===curProj.code&&String(d.pointNo)===pt);
   const bot=parseFloat(document.getElementById('rfg-bot').value)||null,top=parseFloat(document.getElementById('rfg-top').value)||null;
   const mixes=getMixRows();let opc=0,mfc=0,cem=0;mixes.forEach(m=>{const v=parseFloat(m.vol)||0,wc=parseFloat(m.wc)||1.5;if(m.type==='OPC')opc+=v;else mfc+=v;cem+=v/(wc+1000/1440);});
-  const rec={id:editRId||uid(),projectCode:curProj.code,groutType:'RFG',pointNo:pt,location:dRec?dRec.location:'',groutStatus:status,isLocked:status==='Submitted',operator:document.getElementById('rfg-op').value.trim()||opName,groutBottom:bot,groutTop:top,groutingLength:(bot!==null&&top!==null)?r2(bot-top):null,volPerM:parseFloat(document.getElementById('rfg-vpm').value)||null,totalVolumeCalc:(()=>{const v=parseFloat(document.getElementById('rfg-vpm').value),sl=rfgSL();return(!isNaN(v)&&sl>0)?r2(v*sl):null;})(),lugeonType:lugType,lugeonStages:getLuRows(),lugeonReported:(()=>{const v=document.getElementById('lu-rep').textContent,n=parseFloat(v);return isNaN(n)?null:n;})(),rfgMixes:mixes,totalOPC:opc||null,totalMFC:mfc||null,totalCement:r3(cem/1000)||null,remarks:document.getElementById('rfg-rem').value.trim(),appModified:new Date().toISOString()};
+  const rec={id:editRId||uid(),projectCode:curProj.code,groutType:'RFG',pointNo:pt,groutStage:document.getElementById('rfg-stage').value.trim()||null,location:dRec?dRec.location:'',groutStatus:status,isLocked:status==='Submitted',operator:document.getElementById('rfg-op').value.trim()||opName,groutBottom:bot,groutTop:top,groutingLength:(bot!==null&&top!==null)?r2(bot-top):null,volPerM:parseFloat(document.getElementById('rfg-vpm').value)||null,totalVolumeCalc:(()=>{const v=parseFloat(document.getElementById('rfg-vpm').value),sl=rfgSL();return(!isNaN(v)&&sl>0)?r2(v*sl):null;})(),lugeonType:lugType,lugeonStages:getLuRows(),lugeonReported:(()=>{const v=document.getElementById('lu-rep').textContent,n=parseFloat(v);return isNaN(n)?null:n;})(),rfgMixes:mixes,totalOPC:opc||null,totalMFC:mfc||null,totalCement:r3(cem/1000)||null,remarks:document.getElementById('rfg-rem').value.trim(),appModified:new Date().toISOString()};
   const i=ld.grouting.findIndex(g=>String(g.id)===String(rec.id));if(i>=0)ld.grouting[i]=rec;else ld.grouting.push(rec);
   sv();qSave('grouting',rec);await flushQ().catch(()=>{});updCounts();renderGroutList();toast(status==='Submitted'?'RFG record submitted & locked':'Draft saved','ok');nav('s-grout-list');
 }
@@ -1493,23 +1509,60 @@ function delRFG(){if(!isAdmin){toast('Admin required','warn');return;}const r=ld
 function tamPopPt(){if(!curProj)return;const dl=document.getElementById('tam-pt-dl');dl.innerHTML='';ld.drilling.filter(r=>r.projectCode===curProj.code).sort((a,b)=>String(a.pointNo).localeCompare(String(b.pointNo))).forEach(r=>{const o=document.createElement('option');o.value=r.pointNo;o.label='Pt '+r.pointNo+' — '+(r.location||'');dl.appendChild(o);});}
 function tamLoadRef(){const pt=document.getElementById('tam-pt').value.trim();const panel=document.getElementById('tam-ref');const hint=document.getElementById('tam-pt-hint');if(!pt){panel.style.display='none';hint.style.display='none';return;}const r=ld.drilling.find(d=>d.projectCode===curProj.code&&String(d.pointNo)===pt);if(!r){panel.style.display='none';hint.style.display='block';return;}hint.style.display='none';document.getElementById('tam-ref-name').textContent='Pt '+r.pointNo+' — '+(r.location||'');document.getElementById('tam-ref-r1').textContent='Total: '+(r.totalLength||'—')+' m · '+(r.orientation||'');panel.style.display='block';}
 function setTAMPass(p){const ex=getTAMRows();tamPass=p;const b1=document.getElementById('tam-p1'),b2=document.getElementById('tam-p2');b1.style.background=p===1?'var(--k-navy)':'var(--white)';b1.style.color=p===1?'#fff':'var(--slate)';b1.style.border=p===1?'none':'1.5px solid var(--border)';b2.style.background=p===2?'var(--k-navy)':'var(--white)';b2.style.color=p===2?'#fff':'var(--slate)';b2.style.border=p===2?'none':'1.5px solid var(--border)';document.getElementById('tam-rows').innerHTML='';ex.forEach((s,i)=>addTAMRow({stage:s.stage||(i+1),vol:s.vol,pressure:s.pressure,remarks:s.remarks}));tamCalc();}
-function tamGenStages(){const len=parseFloat(document.getElementById('tam-len').value),vpm=parseFloat(document.getElementById('tam-vpm').value);if(!len||len<=0)return;const cnt=Math.ceil(len/0.5),sv=(!isNaN(vpm)&&vpm>0)?r2(vpm*0.5):'';const ex=getTAMRows();document.getElementById('tam-rows').innerHTML='';for(let i=0;i<cnt;i++){const pr=ex[i];addTAMRow({stage:i+1,vol:(pr&&pr.vol)?pr.vol:sv,pressure:(pr&&pr.pressure)?pr.pressure:'',remarks:(pr&&pr.remarks)?pr.remarks:''});}tamCalc();}
-function tamApplyVpm(){const vpm=parseFloat(document.getElementById('tam-vpm').value),sv=(!isNaN(vpm)&&vpm>0)?r2(vpm*0.5):'';const len=parseFloat(document.getElementById('tam-len').value);if(!isNaN(len)&&len>0){tamGenStages();return;}document.querySelectorAll('#tam-rows tr').forEach(tr=>{const i=tr.querySelector('[data-f="vol"]');if(i&&sv!=='')i.value=sv;});tamCalc();}
-function addTAMRow(d){const tb=document.getElementById('tam-rows');if(!tb)return;const num=tb.children.length+1;d=d||{stage:num,vol:'',pressure:'',remarks:''};const isP2=tamPass===2;const tr=document.createElement('tr');tr.dataset.pass=isP2?'2':'1';const sc=isP2?`<input data-f="stage" class="mx" type="number" min="1" value="${d.stage||num}" style="width:40px;text-align:center;font-weight:700;color:var(--k-navy);background:var(--k-navy-lt)">`:`<div data-f="stage" style="width:38px;height:34px;background:var(--k-navy-lt);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--k-navy)">${d.stage||num}</div>`;tr.innerHTML=`<td>${sc}</td><td><input data-f="vol" class="mx" type="number" step="1" value="${d.vol||''}" placeholder="L" oninput="tamCalc()" style="width:70px"></td><td><input data-f="pressure" class="mx" type="number" step="0.1" value="${d.pressure||''}" placeholder="bar" oninput="tamCalc()" style="width:70px"></td><td><input data-f="remarks" class="mx" type="text" value="${esc(d.remarks||'')}" placeholder="…" style="width:100%"></td><td><button class="mxdel" onclick="removeTAMRow(this)">×</button></td>`;tb.appendChild(tr);tamCalc();}
+function tamVolLimit(){
+  const vpm=parseFloat(document.getElementById('tam-vpm').value);
+  const lps=parseFloat(document.getElementById('tam-lps').value);
+  return(!isNaN(vpm)&&!isNaN(lps)&&vpm>0&&lps>0)?r2(vpm*lps):null;
+}
+function tamGroutLen(){
+  const bot=parseFloat(document.getElementById('tam-bot').value);
+  const top=parseFloat(document.getElementById('tam-top').value);
+  return(!isNaN(bot)&&!isNaN(top)&&bot>top)?r2(bot-top):null;
+}
+function tamUpdCalc(){
+  const vl=tamVolLimit();
+  document.getElementById('tam-vollimit').textContent=vl?vl+' L':'—';
+  const gl=tamGroutLen();
+  const hint=document.getElementById('tam-stage-hint');
+  if(hint&&gl){const lps=parseFloat(document.getElementById('tam-lps').value);const n=lps>0?Math.ceil(gl/lps):0;hint.textContent='— '+gl+' m total · '+n+' stages @ '+lps+' m each';}
+  else if(hint)hint.textContent='— enter grout depths and length per stage';
+}
+function tamGenStages(){
+  tamUpdCalc();
+  const bot=parseFloat(document.getElementById('tam-bot').value);
+  const top=parseFloat(document.getElementById('tam-top').value);
+  const lps=parseFloat(document.getElementById('tam-lps').value);
+  if(!bot||!top||!lps||bot<=top||lps<=0)return;
+  const cnt=Math.ceil((bot-top)/lps);
+  const vl=tamVolLimit();
+  const ex=getTAMRows();
+  document.getElementById('tam-rows').innerHTML='';
+  for(let i=0;i<cnt;i++){
+    const pr=ex[i];
+    addTAMRow({stage:i+1,vol:(pr&&pr.vol)?pr.vol:'',pressure:(pr&&pr.pressure)?pr.pressure:'',volLimit:vl||''});
+  }
+  tamCalc();
+}
+function tamApplyVpm(){tamGenStages();}
+function addTAMRow(d){const tb=document.getElementById('tam-rows');if(!tb)return;const num=tb.children.length+1;d=d||{stage:num,vol:'',pressure:'',volLimit:''};const isP2=tamPass===2;const tr=document.createElement('tr');tr.dataset.pass=isP2?'2':'1';const sc=isP2?`<input data-f="stage" class="mx" type="number" min="1" value="${d.stage||num}" style="width:40px;text-align:center;font-weight:700;color:var(--k-navy);background:var(--k-navy-lt)">`:`<div data-f="stage" style="width:38px;height:34px;background:var(--k-navy-lt);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--k-navy)">${d.stage||num}</div>`;
+const vl=d.volLimit||tamVolLimit()||'';
+tr.innerHTML=`<td>${sc}</td><td><input data-f="vol" class="mx" type="number" step="1" value="${d.vol||''}" placeholder="L" oninput="tamCalc()" style="width:70px"></td><td><input data-f="pressure" class="mx" type="number" step="0.1" value="${d.pressure||''}" placeholder="bar" oninput="tamCalc()" style="width:70px"></td><td><div data-f="vollimit" style="height:34px;background:rgba(232,119,34,.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--k-orange);border:1px solid rgba(232,119,34,.2);padding:0 8px">${vl?vl+' L':'—'}</div></td><td><button class="mxdel" onclick="removeTAMRow(this)">×</button></td>`;tb.appendChild(tr);tamCalc();}
 function removeTAMRow(btn){btn.closest('tr').remove();if(tamPass===1)document.querySelectorAll('#tam-rows tr').forEach((tr,i)=>{const d=tr.querySelector('[data-f="stage"]');if(d&&d.tagName==='DIV')d.textContent=i+1;});tamCalc();}
-function getTAMRows(){return Array.from(document.querySelectorAll('#tam-rows tr')).map((tr,i)=>{const isP2=tr.dataset.pass==='2';const sEl=tr.querySelector('[data-f="stage"]');return{stage:isP2?(sEl?sEl.value:i+1):(i+1),vol:tr.querySelector('[data-f="vol"]')?.value||'',pressure:tr.querySelector('[data-f="pressure"]')?.value||'',remarks:tr.querySelector('[data-f="remarks"]')?.value||''};});}
+function getTAMRows(){return Array.from(document.querySelectorAll('#tam-rows tr')).map((tr,i)=>{const isP2=tr.dataset.pass==='2';const sEl=tr.querySelector('[data-f="stage"]');return{stage:isP2?(sEl?sEl.value:i+1):(i+1),vol:tr.querySelector('[data-f="vol"]')?.value||'',pressure:tr.querySelector('[data-f="pressure"]')?.value||'',volLimit:tr.querySelector('[data-f="vollimit"]')?.textContent?.replace(' L','')?.trim()||''};});}
 function tamCalc(){const stages=getTAMRows();const tot=stages.reduce((s,r)=>s+(parseFloat(r.vol)||0),0);const prs=stages.map(r=>parseFloat(r.pressure)).filter(p=>!isNaN(p));const avgP=prs.length?r2(prs.reduce((a,b)=>a+b,0)/prs.length):null;document.getElementById('tam-cp').textContent='Pass '+tamPass;document.getElementById('tam-cs').textContent=stages.length||'—';document.getElementById('tam-cv').textContent=tot>0?tot+' L':'—';document.getElementById('tam-cpr').textContent=avgP!==null?avgP+' bar':'—';}
-function setTAMFields(lk){['tam-op','tam-pt','tam-len','tam-vpm','tam-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.querySelectorAll('#tam-rows input').forEach(e=>e.disabled=lk);document.getElementById('tam-p1').disabled=lk;document.getElementById('tam-p2').disabled=lk;const a=document.getElementById('tam-add');if(a)a.style.display=lk?'none':'block';}
+function setTAMFields(lk){['tam-op','tam-pt','tam-bot','tam-top','tam-lps','tam-vpm'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.querySelectorAll('#tam-rows input').forEach(e=>e.disabled=lk);document.getElementById('tam-p1').disabled=lk;document.getElementById('tam-p2').disabled=lk;const a=document.getElementById('tam-add');if(a)a.style.display=lk?'none':'block';}
 function openTAMForm(id){
   editTId=id;tamPopPt();document.getElementById('tam-rows').innerHTML='';const lb=document.getElementById('tam-lk-banner');
   if(id){const r=ld.grouting.find(g=>String(g.id)===String(id));if(!r)return;
     document.getElementById('tam-hdr-title').textContent=r.isLocked?'TAM Record (Locked)':'TAM Record';
-    document.getElementById('tam-op').value=r.operator||opName||'';document.getElementById('tam-pt').value=String(r.pointNo||'');tamLoadRef();document.getElementById('tam-len').value=r.tamTotalLength||'';document.getElementById('tam-vpm').value=r.tamVolPerM||'';document.getElementById('tam-rem').value=r.remarks||'';
+    document.getElementById('tam-op').value=r.operator||opName||'';document.getElementById('tam-pt').value=String(r.pointNo||'');tamLoadRef();document.getElementById('tam-bot').value=r.groutBottom||'';document.getElementById('tam-top').value=r.groutTop||'';document.getElementById('tam-lps').value=r.lengthPerStage||'';document.getElementById('tam-vpm').value=r.tamVolPerM||'';tamUpdCalc();
     setTAMPass(r.tamPass||1);(r.tamStages||[]).forEach(s=>addTAMRow(s));
     const isLk=(r.isLocked||r.groutStatus==='Submitted');const lk=isLk&&!isAdmin;if(lb)lb.style.display=isLk&&!isAdmin?'flex':'none';setTAMFields(lk);
     const tamIsLk=(r.isLocked||r.groutStatus==='Submitted');document.getElementById('tam-form-btns').style.display=(tamIsLk&&!isAdmin)?'none':'block';document.getElementById('tam-admin-btns').style.display=isAdmin?'block':'none';
   }else{
-    document.getElementById('tam-hdr-title').textContent='New TAM Record';['tam-len','tam-vpm','tam-rem'].forEach(i=>{document.getElementById(i).value='';document.getElementById(i).disabled=false;});
+    document.getElementById('tam-hdr-title').textContent='New TAM Record';
+    ['tam-bot','tam-top','tam-lps','tam-vpm'].forEach(i=>{const e=document.getElementById(i);if(e){e.value='';e.disabled=false;}});
+    document.getElementById('tam-vollimit').textContent='—';
     document.getElementById('tam-op').value=opName;document.getElementById('tam-op').disabled=false;document.getElementById('tam-pt').value='';document.getElementById('tam-pt').disabled=false;
     document.getElementById('tam-ref').style.display='none';document.getElementById('tam-pt-hint').style.display='none';
     tamPass=1;setTAMPass(1);addTAMRow();if(lb)lb.style.display='none';setTAMFields(false);
@@ -1522,7 +1575,7 @@ async function saveTAM(status){
   const pt=document.getElementById('tam-pt').value.trim();if(!pt){toast('Point No required','warn');return;}
   const stages=getTAMRows();if(status==='Submitted'&&!stages.length){toast('Add at least one stage','warn');return;}
   const dRec=ld.drilling.find(d=>d.projectCode===curProj.code&&String(d.pointNo)===pt);const tot=stages.reduce((s,r)=>s+(parseFloat(r.vol)||0),0);
-  const rec={id:editTId||uid(),projectCode:curProj.code,groutType:'TAM',pointNo:pt,location:dRec?dRec.location:'',groutStatus:status,isLocked:status==='Submitted',operator:document.getElementById('tam-op').value.trim()||opName,tamPass,tamTotalLength:parseFloat(document.getElementById('tam-len').value)||null,tamVolPerM:parseFloat(document.getElementById('tam-vpm').value)||null,tamStages:stages,tamTotalVol:tot||null,remarks:document.getElementById('tam-rem').value.trim(),appModified:new Date().toISOString()};
+  const lps=parseFloat(document.getElementById('tam-lps').value)||null;const bot=parseFloat(document.getElementById('tam-bot').value)||null;const top=parseFloat(document.getElementById('tam-top').value)||null;const rec={id:editTId||uid(),projectCode:curProj.code,groutType:'TAM',pointNo:pt,location:dRec?dRec.location:'',groutStatus:status,isLocked:status==='Submitted',operator:document.getElementById('tam-op').value.trim()||opName,tamPass,groutBottom:bot,groutTop:top,groutingLength:(bot&&top)?r2(bot-top):null,lengthPerStage:lps,volLimit:tamVolLimit()||null,tamVolPerM:parseFloat(document.getElementById('tam-vpm').value)||null,tamTotalLength:(bot&&top)?r2(bot-top):null,tamStages:stages,tamTotalVol:tot||null,appModified:new Date().toISOString()};
   const i=ld.grouting.findIndex(g=>String(g.id)===String(rec.id));if(i>=0)ld.grouting[i]=rec;else ld.grouting.push(rec);
   sv();qSave('grouting',rec);await flushQ().catch(()=>{});updCounts();renderGroutList();toast(status==='Submitted'?'TAM record submitted & locked':'Draft saved','ok');nav('s-grout-list');
 }
@@ -1834,7 +1887,7 @@ function genRFGSummary() {
   const mixes = getMixRows().filter(m => m.vol);
   let mixLines = '';
   mixes.forEach((m, i) => {
-    mixLines += `  Stage ${m.stage || i+1}: ${m.type} W/C ${m.wc || '—'} — ${m.vol} L${m.pvl ? ' ['+m.pvl+']' : ''}\n`;
+    mixLines += `  Mix ${m.stage || i+1}: ${m.type} W/C ${m.wc || '—'} — ${m.vol} L${m.pvl ? ' ['+m.pvl+']' : ''}\n`;
   });
 
   // Lugeon stages
@@ -1855,6 +1908,7 @@ function genRFGSummary() {
     '──────────────────────',
     `📍 Project: ${proj}`,
     `🔹 Point No: ${pt}`,
+    document.getElementById('rfg-stage')?.value ? `🔢 Grout Stage: ${document.getElementById('rfg-stage')?.value}` : '',
     dRef ? `📌 ${dRef}` : '',
     '',
     '*💧 GROUTING DATA*',
@@ -1885,22 +1939,25 @@ function genRFGSummary() {
 }
 
 function genTAMSummary() {
-  const pt    = val('tam-pt');
-  const op    = val('tam-op');
-  const len   = val('tam-len');
-  const vpm   = val('tam-vpm');
-  const rem   = val('tam-rem');
-  const proj  = curProj ? curProj.code : '—';
-  const dRef  = document.getElementById('tam-ref-name')?.textContent || '';
-  const cp    = document.getElementById('tam-cp')?.textContent || '—';
-  const cs    = document.getElementById('tam-cs')?.textContent || '—';
-  const cv    = document.getElementById('tam-cv')?.textContent || '—';
-  const cpr   = document.getElementById('tam-cpr')?.textContent || '—';
+  const pt   = val('tam-pt');
+  const op   = val('tam-op');
+  const bot  = val('tam-bot');
+  const top  = val('tam-top');
+  const lps  = val('tam-lps');
+  const vpm  = val('tam-vpm');
+  const proj = curProj ? curProj.code : '—';
+  const dRef = document.getElementById('tam-ref-name')?.textContent || '';
+  const cp   = document.getElementById('tam-cp')?.textContent || '—';
+  const cs   = document.getElementById('tam-cs')?.textContent || '—';
+  const cv   = document.getElementById('tam-cv')?.textContent || '—';
+  const cpr  = document.getElementById('tam-cpr')?.textContent || '—';
+  const vl   = document.getElementById('tam-vollimit')?.textContent || '—';
+  const gl   = (bot !== '—' && top !== '—') ? r2(parseFloat(bot) - parseFloat(top)) : '—';
 
   const stages = getTAMRows().filter(s => s.vol || s.pressure);
   let stageLines = '';
   stages.forEach(s => {
-    stageLines += `  Stage ${s.stage}: ${s.vol || '—'} L @ ${s.pressure || '—'} bar${s.remarks ? ' ('+s.remarks+')' : ''}\n`;
+    stageLines += `  Stage ${s.stage}: ${s.vol || '—'} L @ ${s.pressure || '—'} bar${s.volLimit ? ' (Limit: '+s.volLimit+' L)' : ''}\n`;
   });
 
   const txt = [
@@ -1912,8 +1969,12 @@ function genTAMSummary() {
     dRef ? `📌 ${dRef}` : '',
     '',
     `*🔧 TAM DATA (${cp})*`,
-    len !== '—' ? `Sleeve Length: ${len} m` : '',
-    vpm !== '—' ? `Volume/m: ${vpm} L/m` : '',
+    bot !== '—' ? `Grout Bottom: ${bot} m` : '',
+    top !== '—' ? `Grout Top: ${top} m`    : '',
+    gl  !== '—' ? `Grouting Length: ${gl} m` : '',
+    lps !== '—' ? `Length per Stage: ${lps} m` : '',
+    vpm !== '—' ? `Volume/m: ${vpm} L/m`    : '',
+    vl  !== '—' ? `Vol Limit per Stage: *${vl}*` : '',
     '',
     stages.length ? `*📋 STAGE RECORD (${cs} stages)*` : '',
     stageLines.trimEnd(),
@@ -1921,7 +1982,6 @@ function genTAMSummary() {
     '*📊 SUMMARY*',
     `Total Volume: *${cv}*`,
     `Avg Pressure: ${cpr}`,
-    rem !== '—' ? `\nRemarks: ${rem}` : '',
     '──────────────────────',
     `_Reported by: ${op}_`,
     `_Time: ${now()}_`
@@ -1983,14 +2043,15 @@ function hookLiveUpdate(fields, generator) {
 // Hook after a short delay to ensure DOM is ready
 setTimeout(() => {
   hookLiveUpdate(['d-pt','d-loc','d-date','d-gl','d-ori','d-sp','d-nsp','d-op'], genDrillSummary);
-  hookLiveUpdate(['rfg-pt','rfg-bot','rfg-top','rfg-vpm','rfg-rem','rfg-op'], genRFGSummary);
-  hookLiveUpdate(['tam-pt','tam-len','tam-vpm','tam-rem','tam-op'], genTAMSummary);
+  hookLiveUpdate(['rfg-pt','rfg-stage','rfg-bot','rfg-top','rfg-vpm','rfg-rem','rfg-op'], genRFGSummary);
+  hookLiveUpdate(['tam-pt','tam-bot','tam-top','tam-lps','tam-vpm','tam-op'], genTAMSummary);
   // Also hook strata and mix table changes
   document.getElementById('strata-rows')?.addEventListener('input', genDrillSummary);
   document.getElementById('strata-rows')?.addEventListener('change', genDrillSummary);
   document.getElementById('rfg-mix-rows')?.addEventListener('input', genRFGSummary);
   document.getElementById('lu-rows')?.addEventListener('input', genRFGSummary);
   document.getElementById('tam-rows')?.addEventListener('input', genTAMSummary);
+  ['tam-bot','tam-top','tam-lps','tam-vpm'].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener('input',tamUpdCalc);}});
 }, 800);
 
 </script>
