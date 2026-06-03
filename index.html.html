@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#042C53">
+<title>D&G Field Data</title>
+<style>
+:root{
+  --navy:#042C53;--blue:#185FA5;--teal:#0F6E56;--lteal:#E1F5EE;
+  --amber:#BA7517;--lamber:#FAEEDA;--green:#085041;
+  --gray:#5F5E5A;--lgray:#F1EFE8;--mgray:#D3D1C7;
+  --danger:#A32D2D;--ldanger:#FCEBEB;--text:#2C2C2A;--muted:#888780;
+  --border:#D3D1C7;--lblue:#E6F1FB;--white:#FFFFFF;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{height:100%;overflow:hidden;background:var(--lgray);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text);font-size:15px}
+.screen{display:none;flex-direction:column;height:100%;position:absolute;inset:0;background:var(--lgray)}
+.screen.active{display:flex}
+/* Header */
+.hdr{flex-shrink:0;padding:calc(var(--safe-top) + 12px) 16px 12px;display:flex;align-items:center;justify-content:space-between;min-height:56px}
+.hdr-navy{background:var(--navy)}.hdr-teal{background:var(--teal)}.hdr-purple{background:#26215C}
+.hdr-title{color:#fff;font-size:16px;font-weight:600;flex:1;text-align:center;line-height:1.2}
+.hdr-sub{color:rgba(255,255,255,.6);font-size:11px;text-align:center;margin-top:1px}
+.hdr-btn{color:rgba(255,255,255,.8);font-size:13px;min-width:48px;background:none;border:none;cursor:pointer;padding:4px 0}
+.hdr-btn-r{text-align:right}
+/* Scroll */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 16px calc(var(--safe-bot) + 16px)}
+.scroll-np{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Cards & lists */
+.card{background:#fff;border-radius:12px;border:.5px solid var(--border);margin-bottom:10px;overflow:hidden}
+.sec-lbl{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.06em;margin:16px 0 8px}
+.row{background:#fff;border-bottom:.5px solid var(--border);padding:12px 16px;display:flex;align-items:center;cursor:pointer;transition:background .1s}
+.row:active{background:var(--lgray)}.row:last-child{border-bottom:none}
+.row-body{flex:1;min-width:0}
+.row-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-meta{font-size:12px;color:var(--gray);margin-bottom:2px}
+.row-date{font-size:11px;color:var(--muted)}
+.row-arrow{color:var(--mgray);font-size:20px;padding-left:8px}
+.row-draft{border-left:3px solid var(--amber)}.row-sub{border-left:3px solid var(--teal)}
+/* Badges */
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px}
+.badge-draft{background:var(--lamber);color:var(--amber)}
+.badge-sub{background:var(--lteal);color:var(--green)}
+.badge-rfg{background:var(--lteal);color:var(--teal)}
+.badge-tam{background:#EEEDFE;color:#26215C}
+/* Forms */
+.fg{margin-bottom:14px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.lbl{font-size:12px;color:var(--gray);margin-bottom:5px;display:block;font-weight:500}
+.lbl-req::after{content:" *";color:var(--danger)}
+.inp{width:100%;height:44px;border:1px solid var(--border);border-radius:8px;padding:0 12px;font-size:16px;color:var(--text);background:#fff;outline:none;font-family:inherit;-webkit-appearance:none}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,95,165,.12)}
+.inp:disabled{background:var(--lgray);color:var(--muted)}
+.sel{width:100%;height:44px;border:1px solid var(--border);border-radius:8px;padding:0 32px 0 12px;font-size:16px;color:var(--text);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center;outline:none;font-family:inherit;-webkit-appearance:none}
+.sel:focus{border-color:var(--blue)}.sel:disabled{background:var(--lgray);color:var(--muted)}
+.ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:16px;color:var(--text);background:#fff;outline:none;font-family:inherit;resize:none;min-height:72px}
+.ta:focus{border-color:var(--blue)}
+.ro{background:var(--lblue);color:var(--navy);font-size:15px;font-weight:600;padding:10px 12px;border-radius:8px;border:.5px solid rgba(24,95,165,.3);min-height:44px;display:flex;align-items:center}
+/* Buttons */
+.btn{width:100%;height:52px;border-radius:12px;font-size:15px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn:active{opacity:.85}.btn:disabled{opacity:.5;cursor:default}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-purple{background:#26215C;color:#fff}
+.btn-draft{background:#fff;color:var(--amber);border:1.5px solid var(--amber)}
+.btn-ghost{background:transparent;color:var(--gray);border:1px solid var(--border)}
+.btn-danger{background:var(--ldanger);color:var(--danger);border:1px solid rgba(163,45,45,.3)}
+.btn2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+/* FAB */
+.fab{position:fixed;bottom:calc(var(--safe-bot)+20px);right:20px;width:54px;height:54px;border-radius:27px;border:none;color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.25);z-index:10;transition:transform .15s}
+.fab:active{transform:scale(.93)}
+/* Ref panel */
+.ref-panel{background:var(--lblue);border:.5px solid rgba(24,95,165,.3);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.ref-title{font-size:11px;font-weight:600;color:var(--blue);margin-bottom:6px}
+.ref-name{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.ref-row{font-size:12px;color:var(--gray);margin-bottom:2px}
+/* Calc panel */
+.calc{background:var(--lteal);border:.5px solid rgba(15,110,86,.3);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.calc-title{font-size:11px;font-weight:600;color:var(--teal);margin-bottom:8px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.calc-lbl{font-size:11px;color:var(--gray)}
+.calc-val{font-size:14px;font-weight:700;color:var(--navy)}
+/* Mix table */
+.mix-tbl{width:100%;border-collapse:collapse;margin-bottom:8px}
+.mix-tbl th{font-size:11px;font-weight:600;color:var(--muted);padding:4px 3px;border-bottom:1px solid var(--border);text-align:left}
+.mix-tbl td{padding:3px 2px;vertical-align:middle}
+.mx-inp{width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 6px;font-size:16px;color:var(--text);background:#fff;outline:none;font-family:inherit;-webkit-appearance:none}
+.mx-inp:focus{border-color:var(--blue)}
+.mx-sel{width:100%;height:36px;border:1px solid var(--border);border-radius:6px;padding:0 4px 0 6px;font-size:16px;color:var(--text);background:#fff;outline:none;font-family:inherit;-webkit-appearance:none}
+.mx-del{width:28px;height:28px;border:none;background:var(--ldanger);color:var(--danger);border-radius:6px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+.add-row{width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;color:var(--gray);font-size:13px;cursor:pointer;font-family:inherit}
+/* Overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px calc(var(--safe-bot)+24px);width:100%}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:8px}
+.modal-body{font-size:14px;color:var(--gray);margin-bottom:20px;line-height:1.5}
+.m2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Toast */
+.toast{position:fixed;bottom:calc(var(--safe-bot)+80px);left:50%;transform:translateX(-50%);background:rgba(44,44,42,.92);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1}.toast-ok{background:rgba(8,80,65,.92)}.toast-warn{background:rgba(99,56,6,.92)}.toast-err{background:rgba(163,45,45,.92)}
+/* Home */
+.hero{padding:calc(var(--safe-top)+20px) 16px 20px;background:var(--navy)}
+.hero-title{color:#fff;font-size:22px;font-weight:700;margin-bottom:4px}
+.hero-sub{color:rgba(255,255,255,.6);font-size:13px}
+.proj-card{background:#fff;border-radius:14px;border:.5px solid var(--border);padding:16px;margin-bottom:10px;display:flex;align-items:center;cursor:pointer;transition:opacity .15s}
+.proj-card:active{opacity:.7}
+.proj-dot{width:10px;height:10px;border-radius:5px;margin-right:12px;flex-shrink:0}
+.proj-body{flex:1;min-width:0}
+.proj-code{font-size:15px;font-weight:700;color:var(--navy)}
+.proj-name{font-size:12px;color:var(--gray);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Menu */
+.menu-card{background:#fff;border-radius:14px;border:.5px solid var(--border);overflow:hidden;margin-bottom:10px}
+.menu-item{display:flex;align-items:center;padding:16px;cursor:pointer;border-bottom:.5px solid var(--border);transition:background .1s}
+.menu-item:last-child{border-bottom:none}.menu-item:active{background:var(--lgray)}
+.menu-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-right:14px;flex-shrink:0}
+.menu-lbl{font-size:15px;font-weight:600}
+.menu-sub{font-size:12px;color:var(--muted);margin-top:2px}
+/* Sync */
+.sync-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600}
+.sp-ok{background:var(--lteal);color:var(--green)}
+.sp-fail{background:var(--ldanger);color:var(--danger)}
+.sp-check{background:var(--lblue);color:var(--blue)}
+.sdot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+/* Strata / sum tiles */
+.sum-tile{border-radius:8px;padding:8px 10px}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:600;color:var(--gray);margin-bottom:6px}
+/* Search */
+.search-wrap{padding:10px 16px 8px;background:#fff;border-bottom:.5px solid var(--border)}
+.search-box{position:relative}
+.search-inp{width:100%;height:40px;border:1px solid var(--border);border-radius:8px;padding:0 12px 0 36px;font-size:14px;background:#fff;outline:none;font-family:inherit}
+.search-inp:focus{border-color:var(--blue)}
+.search-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none}
+/* Lugeon btns */
+.lu-btn{flex:1;height:40px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+/* Spin */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+</style>
+</head>
+<body>
+
+<div id="s-home" class="screen active">
+  <div class="hero" style="display:flex;align-items:flex-start;justify-content:space-between">
+    <div>
+      <div class="hero-title">D&amp;G Field Data</div>
+      <div class="hero-sub" id="home-sub">Loading&hellip;</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:2px">
+      <button id="admin-indicator" style="display:none;background:rgba(186,117,23,.8);border:none;border-radius:8px;color:#fff;font-size:12px;padding:6px 10px;cursor:pointer" onclick="adminLogout()">Admin &#10005;</button>
+      <button style="background:rgba(255,255,255,.15);border:none;border-radius:8px;color:#fff;font-size:12px;padding:6px 10px;cursor:pointer" onclick="openSettings()">Settings</button>
+    </div>
+  </div>
+  <div id="home-sync-bar" style="display:none;padding:6px 16px;background:var(--lblue);border-bottom:.5px solid rgba(24,95,165,.2)">
+    <span id="home-sync-pill" class="sync-pill sp-check"><span class="sdot"></span><span id="home-sync-txt">Connecting&hellip;</span></span>
+  </div>
+  <div class="scroll">
+    <div class="sec-lbl">ACTIVE PROJECTS</div>
+    <div id="proj-active"></div>
+    <div class="sec-lbl">COMPLETED</div>
+    <div id="proj-done"></div>
+    <div style="margin-top:8px">
+      <button class="btn btn-ghost" onclick="openAddProject()">+ Add new project</button>
+    </div>
+  </div>
+</div>
+
+<div id="s-project" class="screen">
+  <div class="hdr hdr-navy">
+    <button class="hdr-btn" onclick="goHome()">&#8249; Back</button>
+    <div><div class="hdr-title" id="proj-title">Project</div><div class="hdr-sub" id="proj-sub"></div></div>
+    <div style="min-width:48px"></div>
+  </div>
+  <div class="scroll">
+    <div id="proj-sync-wrap" style="display:none;margin-bottom:8px">
+      <span id="proj-sync-pill" class="sync-pill sp-check"><span class="sdot"></span><span id="proj-sync-txt">Checking&hellip;</span></span>
+    </div>
+    <div class="menu-card">
+      <div class="menu-item" onclick="guardedNav(openDrillList)">
+        <div class="menu-icon" style="background:var(--lblue)">&#9935;</div>
+        <div><div class="menu-lbl">Drilling records</div><div class="menu-sub" id="drill-count">—</div></div>
+        <div class="row-arrow">&#8250;</div>
+      </div>
+      <div class="menu-item" onclick="guardedNav(openGroutList)">
+        <div class="menu-icon" style="background:var(--lteal)">&#128167;</div>
+        <div><div class="menu-lbl">Grouting records</div><div class="menu-sub" id="grout-count">—</div></div>
+        <div class="row-arrow">&#8250;</div>
+      </div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-item" onclick="syncProject()">
+        <div class="menu-icon" style="background:var(--lteal)">&#8635;</div>
+        <div><div class="menu-lbl">Sync now</div><div class="menu-sub" id="last-sync">Pull latest from Supabase</div></div>
+        <div class="row-arrow">&#8250;</div>
+      </div>
+    </div>
+    <div id="admin-proj-delete-card" style="display:none;margin-top:4px">
+      <button class="btn btn-danger" onclick="delProject()" style="height:52px">
+        &#128465; Delete this project and all its records
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="s-drill-list" class="screen">
+  <div class="hdr hdr-navy">
+    <button class="hdr-btn" onclick="nav('s-project')">&#8249; Back</button>
+    <div class="hdr-title">Drilling records</div>
+    <div style="min-width:48px"></div>
+  </div>
+  <div class="search-wrap"><div class="search-box"><span class="search-ico">&#128269;</span>
+    <input class="search-inp" id="drill-search" placeholder="Search point no or location&hellip;" oninput="renderDrillList()">
+  </div></div>
+  <div class="scroll-np"><div id="drill-list"></div></div>
+  <button class="fab" style="background:var(--navy)" onclick="openDrillForm(null)">+</button>
+</div>
+
+<div id="s-drill-form" class="screen">
+  <div class="hdr hdr-navy">
+    <button class="hdr-btn" onclick="nav('s-drill-list')">&#8249; Back</button>
+    <div class="hdr-title" id="drill-form-title">New drilling record</div>
+    <div style="min-width:48px"></div>
+  </div>
+  <div class="scroll">
+    <div class="sec-lbl">IDENTIFICATION</div>
+    <div class="fg"><label class="lbl lbl-req">Operator name</label>
+      <input class="inp" id="d-op" type="text" placeholder="Your name"></div>
+    <div class="fg"><label class="lbl lbl-req">Point No.</label>
+      <input class="inp" id="d-pt" type="text" placeholder="e.g. 67 or A-12" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
+    <div class="fg"><label class="lbl lbl-req">Location</label>
+      <input class="inp" id="d-loc" type="text" placeholder="e.g. 206 Bound"></div>
+    <div class="fg"><label class="lbl lbl-req">Drill start date</label>
+      <input class="inp" id="d-date" type="date"></div>
+    <div class="sec-lbl">BOREHOLE</div>
+    <div class="fg2">
+      <div><label class="lbl">Ground level (m SHD)</label><input class="inp" id="d-gl" type="number" step="0.01" placeholder="m SHD"></div>
+      <div><label class="lbl">Orientation</label>
+        <select class="sel" id="d-ori"><option>Vertical</option><option>Inclined</option></select></div>
+    </div>
+    <div class="fg2">
+      <div><label class="lbl">Sleeve pipe (m)</label><input class="inp" id="d-sp" type="number" step="0.01" placeholder="m"></div>
+      <div><label class="lbl">Non-sleeve pipe (m)</label><input class="inp" id="d-nsp" type="number" step="0.01" placeholder="m"></div>
+    </div>
+    <div class="sec-lbl">STRATA LAYERS</div>
+    <div style="overflow-x:auto;margin-bottom:4px">
+      <table class="mix-tbl" id="strata-tbl">
+        <thead><tr>
+          <th style="width:32px">No.</th><th style="width:90px">Type</th>
+          <th style="width:88px">Length (m)</th><th>Description</th><th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="strata-rows"></tbody>
+      </table>
+    </div>
+    <button class="add-row" onclick="addStrataRow()" style="margin-bottom:10px">+ Add layer</button>
+    <div class="fg3">
+      <div class="sum-tile" style="background:var(--lblue)">
+        <div style="font-size:11px;color:var(--blue)">Soil (m)</div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy)" id="sum-soil">—</div>
+      </div>
+      <div class="sum-tile" style="background:var(--lgray)">
+        <div style="font-size:11px;color:var(--gray)">Rock (m)</div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy)" id="sum-rock">—</div>
+      </div>
+      <div class="sum-tile" style="background:var(--lteal)">
+        <div style="font-size:11px;color:var(--teal)">Total (m)</div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy)" id="sum-total">—</div>
+      </div>
+    </div>
+    <div style="height:12px"></div>
+    <button class="btn btn-navy" onclick="saveDrill()">Save drilling record</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-ghost" onclick="nav('s-drill-list')">Cancel</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-danger" id="drill-del-btn" style="display:none" onclick="delDrill()">Delete record</button>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<div id="s-grout-list" class="screen">
+  <div class="hdr hdr-teal">
+    <button class="hdr-btn" onclick="nav('s-project')" style="color:rgba(255,255,255,.8)">&#8249; Back</button>
+    <div class="hdr-title">Grouting records</div>
+    <div style="min-width:48px"></div>
+  </div>
+  <div class="search-wrap"><div class="search-box"><span class="search-ico">&#128269;</span>
+    <input class="search-inp" id="grout-search" placeholder="Search point no or location&hellip;" oninput="renderGroutList()">
+  </div></div>
+  <div class="scroll-np"><div id="grout-list"></div></div>
+  <button class="fab" style="background:var(--teal)" onclick="showGroutTypeModal()">+</button>
+</div>
+
+<div id="s-rfg" class="screen">
+  <div class="hdr hdr-teal">
+    <button class="hdr-btn" onclick="nav('s-grout-list')" style="color:rgba(255,255,255,.8)">&#8249; Back</button>
+    <div class="hdr-title" id="rfg-title">New RFG record</div>
+    <div style="min-width:48px"></div>
+  </div>
+  <div class="scroll">
+    <div class="sec-lbl">IDENTIFICATION</div>
+    <div class="fg"><label class="lbl lbl-req">Operator name</label>
+      <input class="inp" id="rfg-op" type="text" placeholder="Your name"></div>
+    <div class="fg"><label class="lbl lbl-req">Point No.</label>
+      <input class="inp" id="rfg-pt" type="text" placeholder="Type point no." list="rfg-pt-list"
+        autocomplete="off" autocorrect="off" autocapitalize="off" oninput="rfgLoadRef()">
+      <datalist id="rfg-pt-list"></datalist>
+      <div id="rfg-pt-hint" style="font-size:11px;color:var(--muted);margin-top:4px;display:none">No drilling record found — manual entry</div>
+    </div>
+    <div id="rfg-ref" style="display:none" class="ref-panel">
+      <div class="ref-title">DRILLING REFERENCE — READ ONLY</div>
+      <div class="ref-name" id="rfg-ref-name"></div>
+      <div class="ref-row" id="rfg-ref-r1"></div>
+      <div class="ref-row" id="rfg-ref-r2"></div>
+    </div>
+    <div class="sec-lbl">GROUTING PARAMETERS</div>
+    <div class="fg2">
+      <div><label class="lbl lbl-req">Grout bottom (m)</label>
+        <input class="inp" id="rfg-bot" type="number" step="0.01" placeholder="m"
+          oninput="rfgCalc();rfgUpdateStagelen();rfgRecalcLugeon()"></div>
+      <div><label class="lbl lbl-req">Grout top (m)</label>
+        <input class="inp" id="rfg-top" type="number" step="0.01" placeholder="m"
+          oninput="rfgCalc();rfgUpdateStagelen();rfgRecalcLugeon()"></div>
+    </div>
+    <div class="fg2">
+      <div><label class="lbl">Volume/m (L/m)</label>
+        <input class="inp" id="rfg-vpm" type="number" step="0.1" placeholder="L/m" oninput="rfgCalc()"></div>
+      <div><label class="lbl">Total volume (L) — auto</label>
+        <div class="ro" id="rfg-tvol">—</div></div>
+    </div>
+    <div class="sec-lbl">LUGEON TEST</div>
+    <div class="fg2" style="margin-bottom:8px">
+      <div><label class="lbl">Test type</label>
+        <div style="display:flex;gap:8px;margin-top:2px">
+          <button id="lu-btn-s" class="lu-btn" style="background:var(--navy);color:#fff;border:none" onclick="setLugeonType('Simple')">Simple</button>
+          <button id="lu-btn-m" class="lu-btn" style="background:#fff;color:var(--gray);border:1px solid var(--border)" onclick="setLugeonType('Multistage')">Multistage</button>
+        </div>
+      </div>
+      <div><label class="lbl">Stage length (m) — auto</label>
+        <div class="ro" id="lu-stagelen">—</div></div>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:4px">
+      <table class="mix-tbl" id="lu-tbl">
+        <thead><tr>
+          <th style="width:60px">Stage</th><th style="width:78px">Pressure (bar)</th>
+          <th style="width:72px">Time (min)</th><th style="width:72px">Volume (L)</th>
+          <th style="width:80px">Lugeon</th>
+        </tr></thead>
+        <tbody id="lu-rows"></tbody>
+      </table>
+    </div>
+    <div style="background:var(--lblue);border-radius:8px;padding:10px 12px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--blue);font-weight:600">Reported Lugeon (max)</span>
+      <span style="font-size:18px;font-weight:700;color:var(--navy)" id="lu-reported">—</span>
+    </div>
+    <div class="sec-lbl">GROUT MIX STAGES</div>
+    <div style="overflow-x:auto;margin-bottom:4px">
+      <table class="mix-tbl" id="rfg-mix-tbl">
+        <thead><tr>
+          <th style="width:44px">Stage</th><th style="width:56px">Type</th>
+          <th style="width:64px">W/C ratio</th><th style="width:72px">Vol (L)</th>
+          <th style="width:48px">P/V/L</th><th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="rfg-mix-rows"></tbody>
+      </table>
+    </div>
+    <button class="add-row" onclick="addMixRow()" style="margin-bottom:10px">+ Add grout stage</button>
+    <div class="calc">
+      <div class="calc-title">CALCULATED SUMMARY</div>
+      <div class="calc-grid">
+        <div><div class="calc-lbl">Grouting length</div><div class="calc-val" id="rfg-gl">—</div></div>
+        <div><div class="calc-lbl">Total OPC</div><div class="calc-val" id="rfg-opc">—</div></div>
+        <div><div class="calc-lbl">Total MFC</div><div class="calc-val" id="rfg-mfc">—</div></div>
+        <div><div class="calc-lbl">Total cement</div><div class="calc-val" id="rfg-cem">—</div></div>
+        <div><div class="calc-lbl">Theo termination</div><div class="calc-val" id="rfg-theo">—</div></div>
+      </div>
+    </div>
+    <div class="fg"><label class="lbl">Remarks</label>
+      <textarea class="ta" id="rfg-rem" rows="2" placeholder="Optional notes&hellip;"></textarea></div>
+    <div class="btn2">
+      <button class="btn btn-draft" id="rfg-draft-btn" onclick="saveRFG('Draft')">Save draft</button>
+      <button class="btn btn-teal" id="rfg-sub-btn" onclick="confirmRFGSubmit()">Submit</button>
+    </div>
+    <button class="btn btn-ghost" onclick="nav('s-grout-list')">Cancel</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-danger" id="rfg-del-btn" style="display:none" onclick="delRFG()">Delete record</button>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+<div id="s-tam" class="screen">
+  <div class="hdr hdr-purple">
+    <button class="hdr-btn" onclick="nav('s-grout-list')" style="color:rgba(255,255,255,.8)">&#8249; Back</button>
+    <div class="hdr-title" id="tam-title">New TAM record</div>
+    <div style="min-width:48px"></div>
+  </div>
+  <div class="scroll">
+    <div class="sec-lbl">IDENTIFICATION</div>
+    <div class="fg"><label class="lbl lbl-req">Operator name</label>
+      <input class="inp" id="tam-op" type="text" placeholder="Your name"></div>
+    <div class="fg"><label class="lbl lbl-req">Point No.</label>
+      <input class="inp" id="tam-pt" type="text" placeholder="Type point no." list="tam-pt-list"
+        autocomplete="off" autocorrect="off" autocapitalize="off" oninput="tamLoadRef()">
+      <datalist id="tam-pt-list"></datalist>
+      <div id="tam-pt-hint" style="font-size:11px;color:var(--muted);margin-top:4px;display:none">No drilling record found — manual entry</div>
+    </div>
+    <div id="tam-ref" style="display:none" class="ref-panel">
+      <div class="ref-title">DRILLING REFERENCE — READ ONLY</div>
+      <div class="ref-name" id="tam-ref-name"></div>
+      <div class="ref-row" id="tam-ref-r1"></div>
+    </div>
+    <div class="sec-lbl">PASS &amp; SLEEVE</div>
+    <div class="fg2">
+      <div><label class="lbl">Pass</label>
+        <div style="display:flex;gap:8px;margin-top:2px">
+          <button id="tam-p1-btn" style="flex:1;height:44px;background:#26215C;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" onclick="setTAMPass(1)">Pass 1</button>
+          <button id="tam-p2-btn" style="flex:1;height:44px;background:#fff;color:var(--gray);border:1px solid var(--border);border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" onclick="setTAMPass(2)">Pass 2</button>
+        </div>
+      </div>
+      <div><label class="lbl">Total sleeve length (m)</label>
+        <input class="inp" id="tam-len" type="number" step="0.5" placeholder="m" oninput="tamGenStages()"></div>
+    </div>
+    <div class="fg"><label class="lbl">Volume/m (L/m)</label>
+      <input class="inp" id="tam-vpm" type="number" step="0.1" placeholder="L/m" oninput="tamApplyVpm()"></div>
+    <div class="sec-lbl">TAM STAGES <span style="font-size:11px;font-weight:400;color:var(--muted)">(each stage = 0.5 m)</span></div>
+    <div style="overflow-x:auto;margin-bottom:4px">
+      <table class="mix-tbl" id="tam-tbl">
+        <thead><tr>
+          <th style="width:46px">Stage</th><th style="width:76px">Vol (L)</th>
+          <th style="width:76px">Pressure (bar)</th><th>Remarks</th><th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="tam-rows"></tbody>
+      </table>
+    </div>
+    <button class="add-row" onclick="addTAMRow()" style="margin-bottom:10px">+ Add stage</button>
+    <div class="calc" style="background:#EEEDFE;border-color:rgba(83,74,183,.3)">
+      <div class="calc-title" style="color:#26215C">SUMMARY</div>
+      <div class="calc-grid">
+        <div><div class="calc-lbl">Pass</div><div class="calc-val" id="tam-c-pass">—</div></div>
+        <div><div class="calc-lbl">Stages</div><div class="calc-val" id="tam-c-stages">—</div></div>
+        <div><div class="calc-lbl">Total volume</div><div class="calc-val" id="tam-c-vol">—</div></div>
+        <div><div class="calc-lbl">Avg pressure</div><div class="calc-val" id="tam-c-pres">—</div></div>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:8px"><label class="lbl">Remarks</label>
+      <textarea class="ta" id="tam-rem" rows="2" placeholder="Optional notes&hellip;"></textarea></div>
+    <div class="btn2">
+      <button class="btn btn-draft" id="tam-draft-btn" onclick="saveTAM('Draft')">Save draft</button>
+      <button class="btn btn-purple" id="tam-sub-btn" onclick="confirmTAMSubmit()">Submit</button>
+    </div>
+    <button class="btn btn-ghost" onclick="nav('s-grout-list')">Cancel</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-danger" id="tam-del-btn" style="display:none" onclick="delTAM()">Delete record</button>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
+
+
+<!-- Admin delete confirm -->
+<div class="overlay" id="ov-admin-confirm">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:36px;margin-bottom:8px">🗑️</div>
+    <div class="modal-title" style="text-align:center">Delete record?</div>
+    <div class="modal-body" style="text-align:center" id="admin-confirm-body">This record will be permanently deleted from Supabase and cannot be recovered.</div>
+    <div class="m2">
+      <button class="btn btn-ghost" style="height:48px" onclick="closeModal();_adminDelCb=null">Cancel</button>
+      <button class="btn btn-danger" style="height:48px" onclick="execAdminDelete()">Delete permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin login -->
+<div class="overlay" id="ov-admin">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:36px;margin-bottom:8px">&#128274;</div>
+    <div class="modal-title" style="text-align:center" id="admin-modal-title">Admin login</div>
+    <div style="font-size:13px;color:var(--gray);margin-bottom:16px" id="admin-modal-sub">Enter the admin password to enable deletion of records.</div>
+    <div class="fg">
+      <input class="inp" id="admin-pw-inp" type="password" placeholder="Admin password"
+        style="text-align:center;letter-spacing:4px;font-size:20px"
+        oninput="document.getElementById('admin-pw-err').style.display='none'"
+        onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div id="admin-pw-err" style="color:var(--danger);font-size:12px;margin-top:-8px;margin-bottom:8px;display:none">Incorrect password</div>
+    <div class="m2">
+      <button class="btn btn-ghost" style="height:48px" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-navy" style="height:48px" onclick="doAdminLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- Operator name prompt -->
+<div class="overlay" id="ov-operator">
+  <div class="modal">
+    <div class="modal-title">Who is entering data?</div>
+    <div class="modal-body">Enter your name. Saved with every record. Change anytime in Settings.</div>
+    <div class="fg"><input class="inp" id="op-name-inp" type="text" placeholder="Your full name" autocomplete="name"></div>
+    <button class="btn btn-navy" style="height:48px" onclick="saveOpName()">Save and continue</button>
+  </div>
+</div>
+
+<!-- Add project -->
+<div class="overlay" id="ov-add-proj">
+  <div class="modal">
+    <div class="modal-title">New project</div>
+    <div style="height:12px"></div>
+    <div class="fg"><label class="lbl lbl-req">Project code</label><input class="inp" id="np-code" placeholder="e.g. 207 RFG"></div>
+    <div class="fg"><label class="lbl lbl-req">Project name</label><input class="inp" id="np-name" placeholder="e.g. Marina Bay Grouting"></div>
+    <div class="fg"><label class="lbl">Engineer</label><input class="inp" id="np-eng" placeholder="Your name"></div>
+    <div class="m2">
+      <button class="btn btn-ghost" style="height:48px" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-navy" style="height:48px" onclick="saveNewProject()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Grouting type -->
+<div class="overlay" id="ov-grout-type">
+  <div class="modal">
+    <div class="modal-title">New grouting record</div>
+    <div class="modal-body">Which type?</div>
+    <div style="display:grid;gap:10px">
+      <button class="btn btn-teal" onclick="closeModal();openRFGForm(null)">Rock Fissure Grouting (RFG)</button>
+      <button class="btn btn-purple" onclick="closeModal();openTAMForm(null)">TAM Grouting</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete password -->
+<div class="overlay" id="ov-del-pw">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:32px;margin-bottom:8px">&#128274;</div>
+    <div class="modal-title" style="text-align:center">Confirm deletion</div>
+    <div class="modal-body" style="text-align:center" id="del-pw-lbl">This record will be permanently deleted.</div>
+    <div class="fg"><input class="inp" id="del-pw-inp" type="password" placeholder="Password"
+      style="text-align:center;letter-spacing:4px;font-size:20px"
+      oninput="document.getElementById('del-pw-err').style.display='none'"
+      onkeydown="if(event.key==='Enter')doDelete()"></div>
+    <div id="del-pw-err" style="color:var(--danger);font-size:12px;margin-top:-8px;margin-bottom:8px;display:none">Incorrect password</div>
+    <div class="m2">
+      <button class="btn btn-ghost" style="height:48px" onclick="closeModal();_delCb=null">Cancel</button>
+      <button class="btn btn-danger" style="height:48px" onclick="doDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync gate -->
+<div id="ov-gate" style="position:fixed;inset:0;background:rgba(4,44,83,.92);z-index:200;display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;padding:28px 24px;max-width:320px;width:90%;text-align:center">
+    <div id="gate-icon" style="font-size:44px;margin-bottom:14px">&#8635;</div>
+    <div id="gate-title" style="font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px">Checking connection&hellip;</div>
+    <div id="gate-body" style="font-size:13px;color:var(--gray);line-height:1.6;margin-bottom:16px"></div>
+    <button id="gate-retry-btn" onclick="retryGate()" style="display:none;width:100%;height:48px;background:var(--navy);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px">Retry connection</button>
+    <button id="gate-offline-btn" onclick="dismissGate()" style="display:none;width:100%;height:40px;background:transparent;color:var(--muted);border:none;font-size:13px;cursor:pointer">Continue offline (view only)</button>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="overlay" id="ov-settings">
+  <div class="modal">
+    <div class="modal-title">Settings</div>
+    <div style="height:12px"></div>
+    <div class="fg"><label class="lbl">Operator name</label>
+      <input class="inp" id="set-op" type="text" placeholder="Your name"></div>
+    <div style="background:var(--lteal);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--teal)">&#10003; Supabase connected</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:3px">xprmrqmuwteelalpayfz.supabase.co</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">dg_projects &middot; dg_drilling &middot; dg_grouting</div>
+    </div>
+    <div id="settings-admin-section">
+      <div id="settings-admin-status" style="font-size:12px;margin-bottom:8px"></div>
+      <button id="settings-admin-btn" class="btn btn-ghost" style="height:44px;margin-bottom:14px" onclick="toggleAdminFromSettings()"></button>
+    </div>
+    <div class="m2">
+      <button class="btn btn-ghost" style="height:48px" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-navy" style="height:48px" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+// ════════════════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ════════════════════════════════════════════════════════════════
+const SB_URL = 'https://xprmrqmuwteelalpayfz.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhwcm1ycW11d3RlZWxhbHBheWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzM2NTMsImV4cCI6MjA5NTcwOTY1M30.8XAt0_Ab228t0P-wvQIjhlmHygutwV_mxE4bF3XtbxI';
+const SB_H   = {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+
+// Field map: camelCase app ↔ snake_case Supabase
+const FM = {
+  appId:'app_id',projectCode:'project_code',pointNo:'point_no',
+  drillStartDate:'drill_start_date',groutingCompletion:'grouting_completion',
+  groundLevel:'ground_level',soilLength:'soil_length',rockLength:'rock_length',
+  totalLength:'total_length',sleevePipeLength:'sleeve_pipe_length',
+  nonSleevePipeLength:'non_sleeve_pipe_length',appModified:'app_modified',
+  appCreated:'app_created',groutType:'grout_type',groutStatus:'grout_status',
+  groutBottom:'grout_bottom',groutTop:'grout_top',groutingLength:'grouting_length',
+  lugeonType:'lugeon_type',lugeonReported:'lugeon_reported',lugeonStages:'lugeon_stages',
+  volPerM:'vol_per_m',totalVolumeCalc:'total_volume_calc',rfgMixes:'rfg_mixes',
+  totalOPC:'total_opc',totalMFC:'total_mfc',totalCement:'total_cement',
+  tamPass:'tam_pass',tamTotalLength:'tam_total_length',tamVolPerM:'tam_vol_per_m',
+  tamStages:'tam_stages',tamTotalVol:'tam_total_vol',sleevePipe:'sleeve_pipe'
+};
+const FM_REV = Object.fromEntries(Object.entries(FM).map(([k,v])=>[v,k]));
+const JSONB   = new Set(['strata','rfg_mixes','tam_stages','lugeon_stages']);
+
+function toSB(obj) {
+  const out={};
+  for (const k of Object.keys(obj)) {
+    if (k==='_spId'||k==='_rowIndex'||k==='id') continue;
+    const sk = FM[k]||k; const v=obj[k];
+    if (v===null||v===undefined){out[sk]=null;continue;}
+    if (JSONB.has(sk)){out[sk]=(typeof v==='string')?JSON.parse(v):v;continue;}
+    if (typeof v==='object'){out[sk]=JSON.stringify(v);continue;}
+    out[sk]=v;
+  }
+  if (obj.id) out.app_id=String(obj.id);
+  return out;
+}
+
+function fromSB(obj) {
+  const out={};
+  for (const k of Object.keys(obj)) {
+    if (k==='id'||k==='created_at') continue;
+    out[FM_REV[k]||k]=obj[k];
+  }
+  if (obj.app_id) out.id=obj.app_id;
+  return out;
+}
+
+async function sbGet(table, filter) {
+  let url=SB_URL+'/rest/v1/'+table+'?select=*&limit=5000&order=id.asc';
+  if(filter) url+='&'+filter;
+  const r=await fetch(url,{headers:SB_H});
+  if(!r.ok) throw new Error('Supabase '+r.status);
+  return (await r.json()).map(fromSB);
+}
+
+async function sbUpsert(table, record) {
+  const payload=toSB(record);
+  await fetch(SB_URL+'/rest/v1/'+table+'?on_conflict=app_id',{
+    method:'POST',
+    headers:{...SB_H,'Prefer':'resolution=merge-duplicates,return=representation'},
+    body:JSON.stringify(payload)
+  });
+}
+
+async function sbDelete(table, appId) {
+  await fetch(SB_URL+'/rest/v1/'+table+'?app_id=eq.'+encodeURIComponent(appId),{
+    method:'DELETE', headers:SB_H
+  });
+}
+
+async function sbPing() {
+  const r=await fetch(SB_URL+'/rest/v1/dg_projects?select=app_id&limit=1',{headers:SB_H});
+  if(!r.ok) throw new Error('Supabase '+r.status);
+  return true;
+}
+
+// ════════════════════════════════════════════════════════════════
+// LOCAL STATE
+// ════════════════════════════════════════════════════════════════
+const LS_DATA='dg_data'; const LS_OP='dg_operator'; const LS_QUEUE='dg_queue';
+let localData, syncQueue, operatorName, currentProject;
+let syncPassed=false, syncDismissed=false, editDrillId=null, editRFGId=null, editTAMId=null;
+let lugeonType='Simple', tamPass=1, _delCb=null;
+
+try {
+  localData  = JSON.parse(localStorage.getItem(LS_DATA)||'{"projects":[],"drilling":[],"grouting":[]}');
+  syncQueue  = JSON.parse(localStorage.getItem(LS_QUEUE)||'[]');
+  operatorName = localStorage.getItem(LS_OP)||'';
+} catch(e) {
+  localData={projects:[],drilling:[],grouting:[]};syncQueue=[];operatorName='';
+}
+
+function save() { try{localStorage.setItem(LS_DATA,JSON.stringify(localData));}catch(e){} }
+function saveQ()  { try{localStorage.setItem(LS_QUEUE,JSON.stringify(syncQueue));}catch(e){} }
+function uid()    { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function r2(n)    { return Math.round(n*100)/100; }
+function r3(n)    { return Math.round(n*1000)/1000; }
+function esc(s)   { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function today()  { return new Date().toISOString().slice(0,10); }
+function fmtD(s)  { if(!s)return'—'; try{return new Date(s).toLocaleDateString('en-SG',{day:'2-digit',month:'short',year:'numeric'});}catch(e){return s;} }
+function fmtDT(s) { if(!s)return'—'; try{const d=new Date(s);return d.toLocaleDateString('en-SG',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'});}catch(e){return s;} }
+function fmtT(d)  { return d.toLocaleTimeString('en-SG',{hour:'2-digit',minute:'2-digit'}); }
+
+// ════════════════════════════════════════════════════════════════
+// SYNC QUEUE
+// ════════════════════════════════════════════════════════════════
+function qSave(tbl,rec) {
+  syncQueue=syncQueue.filter(q=>!(q.action==='save'&&q.table===tbl&&q.record.id===rec.id));
+  syncQueue.push({action:'save',table:tbl,record:rec}); saveQ();
+}
+function qDel(tbl,id) {
+  syncQueue=syncQueue.filter(q=>!(q.table===tbl&&q.record?.id===id));
+  syncQueue.push({action:'delete',table:tbl,id}); saveQ();
+}
+async function flushQueue() {
+  if(!syncQueue.length) return;
+  const rem=[];
+  for(const item of syncQueue) {
+    try {
+      if(item.action==='save')   await sbUpsert({projects:'dg_projects',drilling:'dg_drilling',grouting:'dg_grouting'}[item.table],item.record);
+      if(item.action==='delete') await sbDelete({projects:'dg_projects',drilling:'dg_drilling',grouting:'dg_grouting'}[item.table],item.id);
+    } catch(e){ rem.push(item); }
+  }
+  syncQueue=rem; saveQ();
+}
+
+// ════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════════════
+function nav(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function closeModal() { document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('show')); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)closeModal();}));
+
+// ════════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════════
+let _tt;
+function toast(msg,type='') {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show'+(type?' toast-'+type:'');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ════════════════════════════════════════════════════════════════
+// SYNC GATE
+// ════════════════════════════════════════════════════════════════
+function showGate(title,body,showBtns) {
+  const g=document.getElementById('ov-gate');
+  document.getElementById('gate-title').textContent=title;
+  document.getElementById('gate-body').textContent=body;
+  document.getElementById('gate-retry-btn').style.display=showBtns?'block':'none';
+  document.getElementById('gate-offline-btn').style.display=showBtns?'block':'none';
+  document.getElementById('gate-icon').textContent=showBtns?'⚠':'🔄';
+  g.style.display='flex';
+}
+function hideGate() { document.getElementById('ov-gate').style.display='none'; }
+function dismissGate() { syncDismissed=true;syncPassed=false;hideGate();toast('Offline — view only','warn'); }
+async function retryGate() { const ok=await checkSync(); if(ok)toast('Connected — data entry enabled','ok'); }
+
+async function checkSync() {
+  showGate('Checking connection…','',false);
+  try {
+    await Promise.race([sbPing(),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),8000))]);
+    syncPassed=true;syncDismissed=false;hideGate();
+    setProjPill('ok','Connected · '+fmtT(new Date()));
+    return true;
+  } catch(e) {
+    syncPassed=false;
+    showGate('Cannot reach Supabase','Data entry is blocked until the connection is restored. Check your internet and tap Retry.',true);
+    setProjPill('fail','No connection');
+    return false;
+  }
+}
+
+async function guardedNav(fn) {
+  if(syncPassed&&!syncDismissed){fn();return;}
+  if(syncDismissed){toast('Offline — data entry disabled','warn');return;}
+  const ok=await checkSync(); if(ok) fn();
+}
+
+function setProjPill(state,txt) {
+  const wrap=document.getElementById('proj-sync-wrap');
+  const pill=document.getElementById('proj-sync-pill');
+  const t=document.getElementById('proj-sync-txt');
+  if(!wrap)return; wrap.style.display='block';
+  pill.className='sync-pill '+(state==='ok'?'sp-ok':state==='fail'?'sp-fail':'sp-check');
+  if(t)t.textContent=txt;
+}
+
+// ════════════════════════════════════════════════════════════════
+// HOME
+// ════════════════════════════════════════════════════════════════
+function renderHome() {
+  const ps=localData.projects||[];
+  const active=ps.filter(p=>p.status!=='Completed');
+  const done=ps.filter(p=>p.status==='Completed');
+  const aEl=document.getElementById('proj-active');
+  const dEl=document.getElementById('proj-done');
+  aEl.innerHTML=active.length?active.map(p=>projCard(p)).join(''):'<div style="color:var(--muted);font-size:13px;padding:4px 0 8px">None yet</div>';
+  dEl.innerHTML=done.length?done.map(p=>projCard(p,true)).join(''):'<div style="color:var(--muted);font-size:13px;padding:4px 0 8px">None</div>';
+}
+function projCard(p,dim) {
+  return `<div class="proj-card" onclick="openProject('${p.id}')" style="${dim?'opacity:.6':''}">
+    <div class="proj-dot" style="background:${dim?'var(--mgray)':'#1D9E75'}"></div>
+    <div class="proj-body">
+      <div class="proj-code">${esc(p.code)}</div>
+      <div class="proj-name">${esc(p.name)}</div>
+      ${p.engineer?`<div style="font-size:11px;color:var(--muted)">Engr: ${esc(p.engineer)}</div>`:''}
+    </div><div style="color:var(--mgray);font-size:20px">›</div>
+  </div>`;
+}
+
+function goHome() { currentProject=null; renderHome(); nav('s-home'); }
+
+async function bgSyncHome() {
+  const lbl=document.getElementById('home-sub');
+  try {
+    const rows=await Promise.race([sbGet('dg_projects'),new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),6000))]);
+    if(rows&&rows.length>0){localData.projects=rows;save();renderHome();}
+    if(lbl)lbl.textContent=operatorName?'Operator: '+operatorName:'Tap Settings to set your name';
+    const sb=document.getElementById('home-sync-bar');
+    if(sb){sb.style.display='block';document.getElementById('home-sync-pill').className='sync-pill sp-ok';document.getElementById('home-sync-txt').textContent='Synced · '+fmtT(new Date());}
+  } catch(e) {
+    if(lbl)lbl.textContent=operatorName?'Operator: '+operatorName:'Tap Settings to set your name';
+    const sb=document.getElementById('home-sync-bar');
+    if(sb&&localData.projects.length===0){sb.style.display='block';document.getElementById('home-sync-pill').className='sync-pill sp-fail';document.getElementById('home-sync-txt').textContent='Could not load — tap to retry';sb.style.cursor='pointer';sb.onclick=bgSyncHome;}
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// OPERATOR
+// ════════════════════════════════════════════════════════════════
+function saveOpName() {
+  const n=document.getElementById('op-name-inp').value.trim();
+  if(!n){toast('Please enter your name','warn');return;}
+  operatorName=n; localStorage.setItem(LS_OP,n); closeModal();
+  document.getElementById('home-sub').textContent='Operator: '+n;
+  toast('Name saved','ok');
+}
+
+// ════════════════════════════════════════════════════════════════
+// ADD PROJECT
+// ════════════════════════════════════════════════════════════════
+function openAddProject() {
+  ['np-code','np-name','np-eng'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ov-add-proj').classList.add('show');
+}
+async function saveNewProject() {
+  const code=document.getElementById('np-code').value.trim();
+  const name=document.getElementById('np-name').value.trim();
+  const eng=document.getElementById('np-eng').value.trim();
+  if(!code||!name){toast('Code and name required','warn');return;}
+  if(localData.projects.find(p=>p.code===code)){toast('Project code already exists','err');return;}
+  const rec={id:uid(),code,name,engineer:eng,status:'Active',appCreated:new Date().toISOString()};
+  localData.projects.push(rec); save(); qSave('projects',rec);
+  await flushQueue().catch(()=>{});
+  closeModal(); renderHome(); toast('Project created','ok');
+}
+
+// ════════════════════════════════════════════════════════════════
+// PROJECT SCREEN
+// ════════════════════════════════════════════════════════════════
+function updateCounts() {
+  if(!currentProject)return;
+  const d=localData.drilling.filter(r=>r.projectCode===currentProject.code);
+  const g=localData.grouting.filter(r=>r.projectCode===currentProject.code);
+  const drafts=g.filter(r=>r.groutStatus==='Draft').length;
+  const rfg=g.filter(r=>r.groutType==='RFG').length;
+  const tam=g.filter(r=>r.groutType==='TAM').length;
+  document.getElementById('drill-count').textContent=d.length+' records';
+  document.getElementById('grout-count').textContent=g.length+' records ('+rfg+' RFG · '+tam+' TAM)'+(drafts?' · '+drafts+' drafts':'');
+}
+
+async function openProject(id) {
+  currentProject=localData.projects.find(p=>String(p.id)===String(id));
+  if(!currentProject)return;
+  document.getElementById('proj-title').textContent=currentProject.code;
+  document.getElementById('proj-sub').textContent=currentProject.name;
+  syncPassed=false;syncDismissed=false;
+  nav('s-project'); updateCounts();
+  setProjPill('check','Checking…');
+  // Pull data if first time on this device
+  const hasDrill=localData.drilling.some(r=>r.projectCode===currentProject.code);
+  const hasGrout=localData.grouting.some(r=>r.projectCode===currentProject.code);
+  if(!hasDrill&&!hasGrout&&navigator.onLine) {
+    const pc=currentProject.code;
+    Promise.all([
+      sbGet('dg_drilling','project_code=eq.'+encodeURIComponent(pc)).catch(()=>[]),
+      sbGet('dg_grouting','project_code=eq.'+encodeURIComponent(pc)).catch(()=>[])
+    ]).then(([d,g])=>{
+      if(d.length){localData.drilling=localData.drilling.filter(r=>r.projectCode!==pc);localData.drilling.push(...d);}
+      if(g.length){localData.grouting=localData.grouting.filter(r=>r.projectCode!==pc);localData.grouting.push(...g);}
+      save(); updateCounts();
+    });
+  }
+  checkSync().then(ok=>{if(ok)syncProject();});
+}
+
+async function syncProject() {
+  if(!currentProject||!navigator.onLine)return;
+  const pc=currentProject.code;
+  await flushQueue().catch(()=>{});
+  try {
+    const [d,g,ps]=await Promise.all([
+      sbGet('dg_drilling','project_code=eq.'+encodeURIComponent(pc)),
+      sbGet('dg_grouting','project_code=eq.'+encodeURIComponent(pc)),
+      sbGet('dg_projects')
+    ]);
+    localData.drilling=localData.drilling.filter(r=>r.projectCode!==pc);
+    localData.drilling.push(...d);
+    localData.grouting=localData.grouting.filter(r=>r.projectCode!==pc);
+    localData.grouting.push(...g);
+    if(ps.length)localData.projects=ps;
+    save(); updateCounts(); renderDrillList(); renderGroutList();
+    document.getElementById('last-sync').textContent='Last sync: '+fmtT(new Date());
+    setProjPill('ok','Synced · '+fmtT(new Date()));
+    toast('Synced','ok');
+  } catch(e){setProjPill('fail','Sync failed');toast('Sync failed','err');}
+}
+
+// ════════════════════════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════════════════════════
+function openSettings() {
+  document.getElementById('set-op').value=operatorName;
+  document.getElementById('ov-settings').classList.add('show');
+}
+function saveSettings() {
+  const n=document.getElementById('set-op').value.trim();
+  if(n){operatorName=n;localStorage.setItem(LS_OP,n);document.getElementById('home-sub').textContent='Operator: '+n;}
+  closeModal(); toast('Settings saved','ok');
+}
+
+// ════════════════════════════════════════════════════════════════
+// DELETE PASSWORD
+// ════════════════════════════════════════════════════════════════
+function promptDelete(label,cb) {
+  _delCb=cb;
+  document.getElementById('del-pw-lbl').textContent=label||'This record will be permanently deleted.';
+  document.getElementById('del-pw-inp').value='';
+  document.getElementById('del-pw-err').style.display='none';
+  document.getElementById('ov-del-pw').classList.add('show');
+  setTimeout(()=>document.getElementById('del-pw-inp').focus(),200);
+}
+function doDelete() {
+  if(document.getElementById('del-pw-inp').value==='1234') {
+    closeModal(); if(_delCb){_delCb();_delCb=null;}
+  } else {
+    document.getElementById('del-pw-err').style.display='block';
+    document.getElementById('del-pw-inp').value='';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// STRATA TABLE
+// ════════════════════════════════════════════════════════════════
+function addStrataRow(d) {
+  const tb=document.getElementById('strata-rows');
+  const num=tb.children.length+1;
+  d=d||{type:'Soil',length:'',desc:''};
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td style="text-align:center;font-size:12px;color:var(--muted);font-weight:600">${num}</td>
+    <td><select class="mx-sel" data-f="type" onchange="stColorType(this);strataCalc()" style="width:88px">
+      <option ${d.type==='Soil'?'selected':''}>Soil</option><option ${d.type==='Rock'?'selected':''}>Rock</option>
+      <option ${d.type==='Fill'?'selected':''}>Fill</option><option ${d.type==='Other'?'selected':''}>Other</option>
+    </select></td>
+    <td><input class="mx-inp" data-f="length" type="number" step="0.01" value="${d.length||''}" placeholder="m" oninput="strataCalc()" style="width:86px"></td>
+    <td><input class="mx-inp" data-f="desc" type="text" value="${esc(d.desc||'')}" placeholder="e.g. loose sand" style="width:100%"></td>
+    <td><button class="mx-del" onclick="this.closest('tr').remove();renumStrata();strataCalc()">×</button></td>`;
+  tb.appendChild(tr); stColorType(tr.querySelector('[data-f="type"]')); strataCalc();
+}
+function stColorType(sel) {
+  const c={Soil:['#FAEEDA','#633806'],Rock:['#E6F1FB','#0C447C'],Fill:['#EAF3DE','#27500A'],Other:['#F1EFE8','#5F5E5A']}[sel.value]||['#F1EFE8','#5F5E5A'];
+  sel.style.background=c[0];sel.style.color=c[1];
+}
+function renumStrata() {
+  document.querySelectorAll('#strata-rows tr').forEach((tr,i)=>{tr.querySelector('td:first-child').textContent=i+1;});
+}
+function getStrata() {
+  return Array.from(document.querySelectorAll('#strata-rows tr')).map(tr=>{
+    return {type:tr.querySelector('[data-f="type"]').value,length:tr.querySelector('[data-f="length"]').value,desc:tr.querySelector('[data-f="desc"]').value};
+  });
+}
+function loadStrata(arr) {
+  document.getElementById('strata-rows').innerHTML='';
+  if(arr&&arr.length) arr.forEach(s=>addStrataRow(s));
+  else {addStrataRow({type:'Soil',length:'',desc:''});addStrataRow({type:'Rock',length:'',desc:''});}
+}
+function strataCalc() {
+  const rows=getStrata();
+  let soil=0,rock=0,tot=0;
+  rows.forEach(r=>{const l=parseFloat(r.length)||0;tot+=l;if(r.type==='Soil'||r.type==='Fill')soil+=l;else if(r.type==='Rock')rock+=l;});
+  document.getElementById('sum-soil').textContent=rows.length?r2(soil)+' m':'—';
+  document.getElementById('sum-rock').textContent=rows.length?r2(rock)+' m':'—';
+  document.getElementById('sum-total').textContent=rows.length?r2(tot)+' m':'—';
+}
+
+// ════════════════════════════════════════════════════════════════
+// DRILLING
+// ════════════════════════════════════════════════════════════════
+function openDrillList() { renderDrillList(); nav('s-drill-list'); }
+function renderDrillList() {
+  if(!currentProject)return;
+  const q=(document.getElementById('drill-search').value||'').toLowerCase();
+  const recs=localData.drilling.filter(r=>r.projectCode===currentProject.code)
+    .filter(r=>!q||String(r.pointNo).toLowerCase().includes(q)||(r.location||'').toLowerCase().includes(q))
+    .sort((a,b)=>String(b.id).localeCompare(String(a.id)));
+  const el=document.getElementById('drill-list');
+  if(!recs.length){el.innerHTML='<div class="empty"><div class="empty-icon">⛏</div><div class="empty-title">No drilling records yet</div></div>';return;}
+  el.innerHTML='<div class="card" style="border-radius:0;border-left:none;border-right:none;margin:0">'+
+    recs.map(r=>`<div class="row" onclick="openDrillForm('${r.id}')">
+      <div class="row-body">
+        <div class="row-title">Pt ${esc(r.pointNo)} — ${esc(r.location||'')}</div>
+        <div class="row-meta">${r.orientation||''} · Total: ${r.totalLength||'—'} m · Soil: ${r.soilLength||'—'} m · Rock: ${r.rockLength||'—'} m</div>
+        <div class="row-date">Drilled: ${fmtD(r.drillStartDate)} · ${esc(r.operator||'—')}</div>
+      </div><div class="row-arrow">›</div>
+    </div>`).join('')+'</div>';
+}
+
+function openDrillForm(id) {
+  editDrillId=id;
+  const delBtn=document.getElementById('drill-del-btn');
+  document.getElementById('drill-form-title').textContent=id?'Edit drilling record':'New drilling record';
+  if(id) {
+    const r=localData.drilling.find(d=>String(d.id)===String(id));
+    if(!r)return;
+    document.getElementById('d-op').value=r.operator||operatorName||'';
+    document.getElementById('d-pt').value=String(r.pointNo||'');
+    document.getElementById('d-loc').value=r.location||'';
+    document.getElementById('d-date').value=r.drillStartDate||'';
+    document.getElementById('d-gl').value=r.groundLevel||'';
+    document.getElementById('d-ori').value=r.orientation||'Vertical';
+    document.getElementById('d-sp').value=r.sleevePipeLength||'';
+    document.getElementById('d-nsp').value=r.nonSleevePipeLength||'';
+    loadStrata(r.strata); delBtn.style.display='block';
+  } else {
+    ['d-pt','d-loc','d-gl','d-sp','d-nsp'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('d-op').value=operatorName;
+    document.getElementById('d-date').value=today();
+    document.getElementById('d-ori').value='Vertical';
+    loadStrata(null); delBtn.style.display='none';
+  }
+  nav('s-drill-form');
+  updateAdminUI();
+}
+
+async function saveDrill() {
+  const pt=document.getElementById('d-pt').value.trim();
+  const loc=document.getElementById('d-loc').value.trim();
+  const dt=document.getElementById('d-date').value;
+  if(!pt||!loc||!dt){toast('Point No, Location and Date required','warn');return;}
+  const strata=getStrata();
+  const soil=r2(strata.filter(r=>r.type==='Soil'||r.type==='Fill').reduce((s,r)=>s+(parseFloat(r.length)||0),0));
+  const rock=r2(strata.filter(r=>r.type==='Rock').reduce((s,r)=>s+(parseFloat(r.length)||0),0));
+  const tot =r2(strata.reduce((s,r)=>s+(parseFloat(r.length)||0),0));
+  const rec={
+    id:editDrillId||uid(), projectCode:currentProject.code,
+    pointNo:pt, location:loc, drillStartDate:dt,
+    groundLevel:parseFloat(document.getElementById('d-gl').value)||null,
+    orientation:document.getElementById('d-ori').value,
+    sleevePipeLength:parseFloat(document.getElementById('d-sp').value)||null,
+    nonSleevePipeLength:parseFloat(document.getElementById('d-nsp').value)||null,
+    operator:document.getElementById('d-op').value.trim()||operatorName,
+    strata, soilLength:soil||null, rockLength:rock||null, totalLength:tot||null,
+    appModified:new Date().toISOString()
+  };
+  const idx=localData.drilling.findIndex(d=>String(d.id)===String(rec.id));
+  if(idx>=0)localData.drilling[idx]=rec;else localData.drilling.push(rec);
+  save(); qSave('drilling',rec); await flushQueue().catch(()=>{});
+  updateCounts(); renderDrillList();
+  toast(editDrillId?'Record updated':'Drilling record saved','ok');
+  nav('s-drill-list');
+}
+
+function delDrill() {
+  if (!isAdmin) { toast('Admin access required to delete', 'warn'); return; }
+  if (!editDrillId) { toast('No record selected', 'warn'); return; }
+  const r = localData.drilling.find(d => String(d.id) === String(editDrillId));
+  adminConfirm('Delete drilling record: Pt ' + (r?.pointNo || '') + ' — ' + (r?.location || '') + '?', async () => {
+    localData.drilling = localData.drilling.filter(d => String(d.id) !== String(editDrillId));
+    save(); qDel('drilling', editDrillId);
+    await flushQueue().catch(() => {});
+    updateCounts(); renderDrillList();
+    toast('Drilling record deleted', 'ok'); nav('s-drill-list');
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// GROUTING LIST
+// ════════════════════════════════════════════════════════════════
+function openGroutList() { renderGroutList(); nav('s-grout-list'); }
+function showGroutTypeModal() { document.getElementById('ov-grout-type').classList.add('show'); }
+function renderGroutList() {
+  if(!currentProject)return;
+  const q=(document.getElementById('grout-search').value||'').toLowerCase();
+  const recs=localData.grouting.filter(r=>r.projectCode===currentProject.code)
+    .filter(r=>!q||String(r.pointNo).toLowerCase().includes(q)||(r.location||'').toLowerCase().includes(q));
+  const drafts=recs.filter(r=>r.groutStatus==='Draft').sort((a,b)=>new Date(b.appModified)-new Date(a.appModified));
+  const subs=recs.filter(r=>r.groutStatus==='Submitted').sort((a,b)=>new Date(b.appModified)-new Date(a.appModified));
+  const el=document.getElementById('grout-list');
+  if(!recs.length){el.innerHTML='<div class="empty"><div class="empty-icon">💧</div><div class="empty-title">No grouting records yet</div></div>';return;}
+  function gRow(r,sub) {
+    const tb=r.groutType==='TAM'?'<span class="badge badge-tam">TAM</span>':'<span class="badge badge-rfg">RFG</span>';
+    const meta=r.groutType==='TAM'?`${(r.tamStages||[]).length} stages · ${r.tamTotalVol||'—'} L`:`Bot: ${r.groutBottom||'—'} m · Cem: ${r.totalCement||'—'} T`;
+    const fn=r.groutType==='TAM'?`openTAMForm('${r.id}')`:`openRFGForm('${r.id}')`;
+    return `<div class="row ${sub?'row-sub':'row-draft'}" onclick="${fn}" style="${sub?'opacity:.85':''}">
+      <div class="row-body">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+          <span class="row-title" style="margin:0">Pt ${esc(r.pointNo)} — ${esc(r.location||'')}</span>
+          ${tb}<span class="badge ${sub?'badge-sub':'badge-draft'}">${r.groutStatus}</span>
+        </div>
+        <div class="row-meta">${meta}</div>
+        <div class="row-date">${sub?'Submitted':'Saved'}: ${fmtDT(r.appModified)} · ${esc(r.operator||'—')}</div>
+      </div><div class="row-arrow">›</div>
+    </div>`;
+  }
+  let html='';
+  if(drafts.length)html+='<div style="font-size:11px;font-weight:600;color:var(--muted);padding:10px 16px 6px">DRAFTS — '+drafts.length+'</div><div class="card" style="border-radius:0;border-left:none;border-right:none;margin:0">'+drafts.map(r=>gRow(r,false)).join('')+'</div>';
+  if(subs.length)html+='<div style="font-size:11px;font-weight:600;color:var(--muted);padding:10px 16px 6px">SUBMITTED — '+subs.length+'</div><div class="card" style="border-radius:0;border-left:none;border-right:none;margin:0">'+subs.map(r=>gRow(r,true)).join('')+'</div>';
+  el.innerHTML=html;
+}
+
+// ════════════════════════════════════════════════════════════════
+// RFG — helpers
+// ════════════════════════════════════════════════════════════════
+function rfgPopPt() {
+  if(!currentProject)return;
+  const dl=document.getElementById('rfg-pt-list');
+  dl.innerHTML='';
+  localData.drilling.filter(r=>r.projectCode===currentProject.code).sort((a,b)=>String(a.pointNo).localeCompare(String(b.pointNo))).forEach(r=>{
+    const o=document.createElement('option');o.value=r.pointNo;o.label='Pt '+r.pointNo+' — '+(r.location||'');dl.appendChild(o);
+  });
+}
+function rfgLoadRef() {
+  const pt=document.getElementById('rfg-pt').value.trim();
+  const panel=document.getElementById('rfg-ref');
+  const hint=document.getElementById('rfg-pt-hint');
+  if(!pt){panel.style.display='none';hint.style.display='none';return;}
+  const r=localData.drilling.find(d=>d.projectCode===currentProject.code&&String(d.pointNo)===pt);
+  if(!r){panel.style.display='none';hint.style.display='block';return;}
+  hint.style.display='none';
+  document.getElementById('rfg-ref-name').textContent='Pt '+r.pointNo+' — '+(r.location||'');
+  document.getElementById('rfg-ref-r1').textContent=(r.orientation||'')+(r.groundLevel?' · GL: '+r.groundLevel+' m SHD':'');
+  document.getElementById('rfg-ref-r2').textContent='Soil: '+(r.soilLength||'—')+' m · Rock: '+(r.rockLength||'—')+' m · Total: '+(r.totalLength||'—')+' m';
+  panel.style.display='block';
+}
+function rfgGetSL() {
+  const b=parseFloat(document.getElementById('rfg-bot').value);
+  const t=parseFloat(document.getElementById('rfg-top').value);
+  return (!isNaN(b)&&!isNaN(t))?r2(b-t):0;
+}
+function rfgUpdateStagelen() {
+  const sl=rfgGetSL();
+  document.getElementById('lu-stagelen').textContent=sl>0?sl+' m':'— (enter grout depths)';
+}
+function rfgCalc() {
+  const sl=rfgGetSL();
+  const vpm=parseFloat(document.getElementById('rfg-vpm').value);
+  document.getElementById('rfg-tvol').textContent=(!isNaN(vpm)&&sl>0)?r2(vpm*sl)+' L':'—';
+  document.getElementById('rfg-gl').textContent=sl>0?sl+' m':'—';
+  // Recalc mix summary
+  const rows=getMixRows();
+  let opc=0,mfc=0,cem=0,hasV=false;
+  rows.forEach(m=>{const v=parseFloat(m.vol)||0;const wc=parseFloat(m.wc)||1.5;
+    if(m.type==='OPC')opc+=v;else mfc+=v;
+    cem+=v/(wc+1000/1440);if(m.pvl==='V')hasV=true;
+  });
+  cem=r3(cem/1000);
+  const theo=(sl>0&&hasV)?Math.round(sl*350):null;
+  document.getElementById('rfg-opc').textContent=opc>0?opc+' L':'—';
+  document.getElementById('rfg-mfc').textContent=mfc>0?mfc+' L':'—';
+  document.getElementById('rfg-cem').textContent=cem>0?cem+' T':'—';
+  document.getElementById('rfg-theo').textContent=theo!==null?theo+' L':(hasV?'—':'N/A');
+}
+
+// ── Lugeon ───────────────────────────────────────────────────────
+function setLugeonType(type) {
+  lugeonType=type;
+  const bs=document.getElementById('lu-btn-s');
+  const bm=document.getElementById('lu-btn-m');
+  bs.style.background=type==='Simple'?'var(--navy)':'#fff';
+  bs.style.color=type==='Simple'?'#fff':'var(--gray)';
+  bs.style.border=type==='Simple'?'none':'1px solid var(--border)';
+  bm.style.background=type==='Multistage'?'var(--navy)':'#fff';
+  bm.style.color=type==='Multistage'?'#fff':'var(--gray)';
+  bm.style.border=type==='Multistage'?'none':'1px solid var(--border)';
+  buildLugeonRows(type);
+}
+function buildLugeonRows(type,data) {
+  const tb=document.getElementById('lu-rows');tb.innerHTML='';
+  const n=type==='Multistage'?5:1;
+  const labels=type==='Multistage'?['P1 (low)','P2 (mid)','P3 (high)','P4 (mid)','P5 (low)']:['Test'];
+  for(let i=0;i<n;i++) {
+    const d=(data&&data[i])||{};
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-size:12px;color:var(--gray);white-space:nowrap">${labels[i]}</td>
+      <td><input class="mx-inp" type="number" step="0.1" value="${d.pressure||''}" placeholder="bar" oninput="calcLugeonRow(this)" style="width:76px"></td>
+      <td><input class="mx-inp" type="number" step="0.1" value="${d.time||''}"     placeholder="min" oninput="calcLugeonRow(this)" style="width:68px"></td>
+      <td><input class="mx-inp" type="number" step="1"   value="${d.vol||''}"      placeholder="L"   oninput="calcLugeonRow(this)" style="width:68px"></td>
+      <td style="font-size:14px;font-weight:700;color:var(--navy);text-align:center;padding:4px" class="lu-val">${d.lugeon||'—'}</td>`;
+    tb.appendChild(tr);
+  }
+  updateLugeonReported();
+}
+function calcLugeonRow(inp) {
+  const tr=inp.closest('tr');const inps=tr.querySelectorAll('input');
+  const sl=rfgGetSL();const p=parseFloat(inps[0].value);const t=parseFloat(inps[1].value);const v=parseFloat(inps[2].value);
+  const cell=tr.querySelector('.lu-val');
+  if(!isNaN(p)&&!isNaN(t)&&!isNaN(v)&&p>0&&t>0&&sl>0) {
+    cell.textContent=Math.round(((v/(sl*t*p))*10)*100)/100;
+  } else cell.textContent='—';
+  updateLugeonReported();
+}
+function rfgRecalcLugeon() {
+  document.querySelectorAll('#lu-rows tr').forEach(tr=>{
+    const inps=tr.querySelectorAll('input');if(inps.length) calcLugeonRow(inps[0]);
+  });
+}
+function updateLugeonReported() {
+  const vals=Array.from(document.querySelectorAll('#lu-rows .lu-val')).map(td=>parseFloat(td.textContent)).filter(v=>!isNaN(v));
+  document.getElementById('lu-reported').textContent=vals.length?Math.max(...vals):'—';
+}
+function getLugeonRows() {
+  return Array.from(document.querySelectorAll('#lu-rows tr')).map((tr,i)=>{
+    const inps=tr.querySelectorAll('input');const val=tr.querySelector('.lu-val');
+    return {stage:i+1,pressure:inps[0].value,time:inps[1].value,vol:inps[2].value,lugeon:val?val.textContent:'—'};
+  });
+}
+function loadLugeon(type,data) {
+  lugeonType=type||'Simple';setLugeonType(lugeonType);
+  if(data&&data.length)buildLugeonRows(lugeonType,data);
+}
+
+// ── Mix rows ──────────────────────────────────────────────────────
+function addMixRow(d) {
+  const tb=document.getElementById('rfg-mix-rows');
+  d=d||{stage:'1',type:'OPC',wc:'1.5',vol:'',pvl:''};
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input class="mx-inp" type="number" min="1" value="${d.stage}" oninput="rfgCalc()" style="width:42px;text-align:center"></td>
+    <td><select class="mx-sel" onchange="styleMixType(this);rfgCalc()" style="width:54px">
+      <option ${d.type==='OPC'?'selected':''}>OPC</option>
+      <option ${d.type==='MFC'?'selected':''}>MFC</option>
+    </select></td>
+    <td><input class="mx-inp" type="number" step="0.1" value="${d.wc||''}" placeholder="e.g. 1.5" oninput="rfgCalc()" style="width:62px"></td>
+    <td><input class="mx-inp" type="number" step="1" value="${d.vol||''}" placeholder="L" oninput="rfgCalc()" style="width:68px"></td>
+    <td><select class="mx-sel" style="width:46px">
+      <option value="">—</option><option ${d.pvl==='P'?'selected':''}>P</option>
+      <option ${d.pvl==='V'?'selected':''}>V</option><option ${d.pvl==='L'?'selected':''}>L</option>
+    </select></td>
+    <td><button class="mx-del" onclick="this.closest('tr').remove();rfgCalc()">×</button></td>`;
+  tb.appendChild(tr);styleMixType(tr.querySelector('select'));rfgCalc();
+}
+function styleMixType(sel) {
+  sel.style.background=sel.value==='OPC'?'#E1F5EE':'#FAEEDA';
+  sel.style.color=sel.value==='OPC'?'#085041':'#633806';
+}
+function getMixRows() {
+  return Array.from(document.querySelectorAll('#rfg-mix-rows tr')).map(tr=>{
+    const inps=tr.querySelectorAll('input,select');
+    return {stage:inps[0].value,type:inps[1].value,wc:inps[2].value,vol:inps[3].value,pvl:inps[4].value};
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// RFG FORM
+// ════════════════════════════════════════════════════════════════
+function openRFGForm(id) {
+  editRFGId=id; rfgPopPt();
+  document.getElementById('rfg-mix-rows').innerHTML='';
+  const delBtn=document.getElementById('rfg-del-btn');
+  const draftBtn=document.getElementById('rfg-draft-btn');
+  const subBtn=document.getElementById('rfg-sub-btn');
+  if(id) {
+    const r=localData.grouting.find(g=>String(g.id)===String(id));if(!r)return;
+    document.getElementById('rfg-title').textContent=r.groutStatus==='Submitted'?'RFG record':'Continue RFG record';
+    document.getElementById('rfg-op').value=r.operator||operatorName||'';
+    document.getElementById('rfg-pt').value=String(r.pointNo||'');rfgLoadRef();
+    document.getElementById('rfg-bot').value=r.groutBottom||'';
+    document.getElementById('rfg-top').value=r.groutTop||'';
+    document.getElementById('rfg-vpm').value=r.volPerM||'';
+    document.getElementById('rfg-rem').value=r.remarks||'';
+    (r.rfgMixes||[]).forEach(m=>addMixRow(m));
+    loadLugeon(r.lugeonType,r.lugeonStages);
+    const locked=r.groutStatus==='Submitted';
+    ['rfg-op','rfg-bot','rfg-top','rfg-vpm','rfg-rem','rfg-pt'].forEach(i=>document.getElementById(i).disabled=locked);
+    delBtn.style.display=r.groutStatus==='Draft'?'block':'none';
+    draftBtn.style.display=locked?'none':'block';
+    subBtn.textContent=locked?'Edit record':'Submit';
+    subBtn.onclick=locked?()=>{['rfg-op','rfg-bot','rfg-top','rfg-vpm','rfg-rem','rfg-pt'].forEach(i=>document.getElementById(i).disabled=false);draftBtn.style.display='block';subBtn.textContent='Submit';subBtn.onclick=()=>confirmRFGSubmit();delBtn.style.display='block';}:()=>confirmRFGSubmit();
+  } else {
+    document.getElementById('rfg-title').textContent='New RFG record';
+    ['rfg-bot','rfg-top','rfg-vpm','rfg-rem'].forEach(i=>{document.getElementById(i).value='';document.getElementById(i).disabled=false;});
+    document.getElementById('rfg-op').value=operatorName;document.getElementById('rfg-op').disabled=false;
+    document.getElementById('rfg-pt').value='';document.getElementById('rfg-pt').disabled=false;
+    document.getElementById('rfg-ref').style.display='none';document.getElementById('rfg-pt-hint').style.display='none';
+    lugeonType='Simple';buildLugeonRows('Simple');setLugeonType('Simple');
+    addMixRow(); delBtn.style.display='none'; draftBtn.style.display='block';
+    subBtn.textContent='Submit'; subBtn.onclick=()=>confirmRFGSubmit();
+  }
+  rfgCalc(); rfgUpdateStagelen(); nav('s-rfg');
+  updateAdminUI();
+}
+
+async function saveRFG(status) {
+  const pt=document.getElementById('rfg-pt').value.trim();
+  if(!pt){toast('Please enter a Point No','warn');return;}
+  if(status==='Submitted') {
+    if(!document.getElementById('rfg-bot').value||!document.getElementById('rfg-top').value){toast('Grout bottom and top required','warn');return;}
+  }
+  const dRec=localData.drilling.find(d=>d.projectCode===currentProject.code&&String(d.pointNo)===pt);
+  const bot=parseFloat(document.getElementById('rfg-bot').value)||null;
+  const top=parseFloat(document.getElementById('rfg-top').value)||null;
+  const mixes=getMixRows();
+  let opc=0,mfc=0,cem=0,hasV=false;
+  mixes.forEach(m=>{const v=parseFloat(m.vol)||0;const wc=parseFloat(m.wc)||1.5;
+    if(m.type==='OPC')opc+=v;else mfc+=v;cem+=v/(wc+1000/1440);if(m.pvl==='V')hasV=true;});
+  const rec={
+    id:editRFGId||uid(), projectCode:currentProject.code, groutType:'RFG',
+    pointNo:pt, location:dRec?dRec.location:'', groutStatus:status,
+    operator:document.getElementById('rfg-op').value.trim()||operatorName,
+    groutBottom:bot, groutTop:top, groutingLength:(bot!==null&&top!==null)?r2(bot-top):null,
+    volPerM:parseFloat(document.getElementById('rfg-vpm').value)||null,
+    totalVolumeCalc:(()=>{const v=parseFloat(document.getElementById('rfg-vpm').value);const sl=rfgGetSL();return(!isNaN(v)&&sl>0)?r2(v*sl):null;})(),
+    lugeonType, lugeonStages:getLugeonRows(),
+    lugeonReported:(()=>{const v=document.getElementById('lu-reported').textContent;const n=parseFloat(v);return isNaN(n)?null:n;})(),
+    rfgMixes:mixes, totalOPC:opc||null, totalMFC:mfc||null, totalCement:r3(cem/1000)||null,
+    remarks:document.getElementById('rfg-rem').value.trim(), appModified:new Date().toISOString()
+  };
+  const idx=localData.grouting.findIndex(g=>String(g.id)===String(rec.id));
+  if(idx>=0)localData.grouting[idx]=rec;else localData.grouting.push(rec);
+  save(); qSave('grouting',rec); await flushQueue().catch(()=>{});
+  updateCounts(); renderGroutList();
+  toast(status==='Draft'?'Draft saved':'RFG record submitted!',status==='Draft'?'warn':'ok');
+  nav('s-grout-list');
+}
+
+function confirmRFGSubmit() {
+  if(!document.getElementById('rfg-bot').value||!document.getElementById('rfg-top').value){toast('Grout bottom and top required','warn');return;}
+  saveRFG('Submitted');
+}
+
+function delRFG() {
+  if (!isAdmin) { toast('Admin access required to delete', 'warn'); return; }
+  if (!editRFGId) { toast('No record selected', 'warn'); return; }
+  const r = localData.grouting.find(g => String(g.id) === String(editRFGId));
+  adminConfirm('Delete RFG record: Pt ' + (r?.pointNo || '') + ' — ' + (r?.location || '') + '?', async () => {
+    localData.grouting = localData.grouting.filter(g => String(g.id) !== String(editRFGId));
+    save(); qDel('grouting', editRFGId);
+    await flushQueue().catch(() => {});
+    updateCounts(); renderGroutList();
+    toast('RFG record deleted', 'ok'); nav('s-grout-list');
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAM
+// ════════════════════════════════════════════════════════════════
+function tamPopPt() {
+  if(!currentProject)return;
+  const dl=document.getElementById('tam-pt-list');dl.innerHTML='';
+  localData.drilling.filter(r=>r.projectCode===currentProject.code).sort((a,b)=>String(a.pointNo).localeCompare(String(b.pointNo))).forEach(r=>{
+    const o=document.createElement('option');o.value=r.pointNo;o.label='Pt '+r.pointNo+' — '+(r.location||'');dl.appendChild(o);
+  });
+}
+function tamLoadRef() {
+  const pt=document.getElementById('tam-pt').value.trim();
+  const panel=document.getElementById('tam-ref');const hint=document.getElementById('tam-pt-hint');
+  if(!pt){panel.style.display='none';hint.style.display='none';return;}
+  const r=localData.drilling.find(d=>d.projectCode===currentProject.code&&String(d.pointNo)===pt);
+  if(!r){panel.style.display='none';hint.style.display='block';return;}
+  hint.style.display='none';
+  document.getElementById('tam-ref-name').textContent='Pt '+r.pointNo+' — '+(r.location||'');
+  document.getElementById('tam-ref-r1').textContent='Total: '+(r.totalLength||'—')+' m · '+(r.orientation||'');
+  panel.style.display='block';
+}
+function setTAMPass(pass) {
+  const existing=getTAMRows();tamPass=pass;
+  const b1=document.getElementById('tam-p1-btn');const b2=document.getElementById('tam-p2-btn');
+  b1.style.background=pass===1?'#26215C':'#fff';b1.style.color=pass===1?'#fff':'var(--gray)';b1.style.border=pass===1?'none':'1px solid var(--border)';
+  b2.style.background=pass===2?'#26215C':'#fff';b2.style.color=pass===2?'#fff':'var(--gray)';b2.style.border=pass===2?'none':'1px solid var(--border)';
+  document.getElementById('tam-rows').innerHTML='';
+  existing.forEach((s,i)=>addTAMRow({stage:s.stage||(i+1),vol:s.vol,pressure:s.pressure,remarks:s.remarks}));
+  tamCalc();
+}
+function tamGenStages() {
+  const len=parseFloat(document.getElementById('tam-len').value);
+  const vpm=parseFloat(document.getElementById('tam-vpm').value);
+  if(!len||len<=0)return;
+  const count=Math.ceil(len/0.5);
+  const stageVol=(!isNaN(vpm)&&vpm>0)?r2(vpm*0.5):'';
+  const existing=getTAMRows();
+  document.getElementById('tam-rows').innerHTML='';
+  for(let i=0;i<count;i++) {
+    const prev=existing[i];
+    addTAMRow({stage:i+1,vol:(prev&&prev.vol)?prev.vol:stageVol,pressure:(prev&&prev.pressure)?prev.pressure:'',remarks:(prev&&prev.remarks)?prev.remarks:''});
+  }
+  tamCalc();
+}
+function tamApplyVpm() {
+  const vpm=parseFloat(document.getElementById('tam-vpm').value);
+  const sv=(!isNaN(vpm)&&vpm>0)?r2(vpm*0.5):'';
+  const len=parseFloat(document.getElementById('tam-len').value);
+  if(!isNaN(len)&&len>0) {tamGenStages();return;}
+  document.querySelectorAll('#tam-rows tr').forEach(tr=>{
+    const inp=tr.querySelector('[data-f="vol"]');if(inp&&sv!=='')inp.value=sv;
+  });
+  tamCalc();
+}
+function addTAMRow(d) {
+  const tb=document.getElementById('tam-rows');if(!tb)return;
+  const num=tb.children.length+1;
+  d=d||{stage:num,vol:'',pressure:'',remarks:''};
+  const isP2=tamPass===2;
+  const tr=document.createElement('tr');tr.dataset.pass=isP2?'2':'1';
+  const stageCell=isP2
+    ?`<input data-f="stage" class="mx-inp" type="number" min="1" value="${d.stage||num}" style="width:42px;text-align:center;font-weight:700;color:#26215C;background:#EEEDFE;border-color:#AFA9EC">`
+    :`<div data-f="stage" style="width:38px;height:36px;background:#EEEDFE;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#26215C">${d.stage||num}</div>`;
+  tr.innerHTML=`<td>${stageCell}</td>
+    <td><input data-f="vol" class="mx-inp" type="number" step="1" value="${d.vol||''}" placeholder="L" oninput="tamCalc()" style="width:72px"></td>
+    <td><input data-f="pressure" class="mx-inp" type="number" step="0.1" value="${d.pressure||''}" placeholder="bar" oninput="tamCalc()" style="width:72px"></td>
+    <td><input data-f="remarks" class="mx-inp" type="text" value="${esc(d.remarks||'')}" placeholder="…" style="width:100%"></td>
+    <td><button class="mx-del" onclick="removeTAMRow(this)">×</button></td>`;
+  tb.appendChild(tr);tamCalc();
+}
+function removeTAMRow(btn) {
+  btn.closest('tr').remove();
+  if(tamPass===1) {document.querySelectorAll('#tam-rows tr').forEach((tr,i)=>{const d=tr.querySelector('[data-f="stage"]');if(d&&d.tagName==='DIV')d.textContent=i+1;});}
+  tamCalc();
+}
+function getTAMRows() {
+  return Array.from(document.querySelectorAll('#tam-rows tr')).map((tr,i)=>{
+    const isP2=tr.dataset.pass==='2';
+    const sEl=tr.querySelector('[data-f="stage"]');
+    return {
+      stage:isP2?(sEl?sEl.value:i+1):(i+1),
+      vol:tr.querySelector('[data-f="vol"]')?.value||'',
+      pressure:tr.querySelector('[data-f="pressure"]')?.value||'',
+      remarks:tr.querySelector('[data-f="remarks"]')?.value||''
+    };
+  });
+}
+function tamCalc() {
+  const stages=getTAMRows();
+  const tot=stages.reduce((s,r)=>s+(parseFloat(r.vol)||0),0);
+  const pressures=stages.map(r=>parseFloat(r.pressure)).filter(p=>!isNaN(p));
+  const avgP=pressures.length?r2(pressures.reduce((a,b)=>a+b,0)/pressures.length):null;
+  document.getElementById('tam-c-pass').textContent='Pass '+tamPass;
+  document.getElementById('tam-c-stages').textContent=stages.length||'—';
+  document.getElementById('tam-c-vol').textContent=tot>0?tot+' L':'—';
+  document.getElementById('tam-c-pres').textContent=avgP!==null?avgP+' bar':'—';
+}
+
+function openTAMForm(id) {
+  editTAMId=id; tamPopPt();
+  document.getElementById('tam-rows').innerHTML='';
+  const delBtn=document.getElementById('tam-del-btn');
+  const draftBtn=document.getElementById('tam-draft-btn');
+  const subBtn=document.getElementById('tam-sub-btn');
+  if(id) {
+    const r=localData.grouting.find(g=>String(g.id)===String(id));if(!r)return;
+    document.getElementById('tam-title').textContent=r.groutStatus==='Submitted'?'TAM record':'Continue TAM record';
+    document.getElementById('tam-op').value=r.operator||operatorName||'';
+    document.getElementById('tam-pt').value=String(r.pointNo||'');tamLoadRef();
+    document.getElementById('tam-len').value=r.tamTotalLength||'';
+    document.getElementById('tam-vpm').value=r.tamVolPerM||'';
+    document.getElementById('tam-rem').value=r.remarks||'';
+    setTAMPass(r.tamPass||1);
+    (r.tamStages||[]).forEach(s=>addTAMRow(s));
+    const locked=r.groutStatus==='Submitted';
+    ['tam-op','tam-pt','tam-len','tam-vpm','tam-rem'].forEach(i=>document.getElementById(i).disabled=locked);
+    delBtn.style.display=r.groutStatus==='Draft'?'block':'none';
+    draftBtn.style.display=locked?'none':'block';
+    subBtn.textContent=locked?'Edit record':'Submit';
+    subBtn.onclick=locked?()=>{['tam-op','tam-pt','tam-len','tam-vpm','tam-rem'].forEach(i=>document.getElementById(i).disabled=false);draftBtn.style.display='block';subBtn.textContent='Submit';subBtn.onclick=()=>confirmTAMSubmit();delBtn.style.display='block';}:()=>confirmTAMSubmit();
+  } else {
+    document.getElementById('tam-title').textContent='New TAM record';
+    ['tam-len','tam-vpm','tam-rem'].forEach(i=>{document.getElementById(i).value='';document.getElementById(i).disabled=false;});
+    document.getElementById('tam-op').value=operatorName;document.getElementById('tam-op').disabled=false;
+    document.getElementById('tam-pt').value='';document.getElementById('tam-pt').disabled=false;
+    document.getElementById('tam-ref').style.display='none';document.getElementById('tam-pt-hint').style.display='none';
+    tamPass=1;setTAMPass(1);addTAMRow();
+    delBtn.style.display='none';draftBtn.style.display='block';
+    subBtn.textContent='Submit';subBtn.onclick=()=>confirmTAMSubmit();
+  }
+  tamCalc(); nav('s-tam');
+  updateAdminUI();
+}
+
+async function saveTAM(status) {
+  const pt=document.getElementById('tam-pt').value.trim();
+  if(!pt){toast('Please enter a Point No','warn');return;}
+  const stages=getTAMRows();
+  if(status==='Submitted'&&!stages.length){toast('Add at least one stage','warn');return;}
+  const dRec=localData.drilling.find(d=>d.projectCode===currentProject.code&&String(d.pointNo)===pt);
+  const tot=stages.reduce((s,r)=>s+(parseFloat(r.vol)||0),0);
+  const rec={
+    id:editTAMId||uid(), projectCode:currentProject.code, groutType:'TAM',
+    pointNo:pt, location:dRec?dRec.location:'', groutStatus:status,
+    operator:document.getElementById('tam-op').value.trim()||operatorName,
+    tamPass, tamTotalLength:parseFloat(document.getElementById('tam-len').value)||null,
+    tamVolPerM:parseFloat(document.getElementById('tam-vpm').value)||null,
+    tamStages:stages, tamTotalVol:tot||null,
+    remarks:document.getElementById('tam-rem').value.trim(), appModified:new Date().toISOString()
+  };
+  const idx=localData.grouting.findIndex(g=>String(g.id)===String(rec.id));
+  if(idx>=0)localData.grouting[idx]=rec;else localData.grouting.push(rec);
+  save(); qSave('grouting',rec); await flushQueue().catch(()=>{});
+  updateCounts(); renderGroutList();
+  toast(status==='Draft'?'Draft saved':'TAM record submitted!',status==='Draft'?'warn':'ok');
+  nav('s-grout-list');
+}
+function confirmTAMSubmit() {
+  saveTAM('Submitted');
+}
+function delTAM() {
+  if (!isAdmin) { toast('Admin access required to delete', 'warn'); return; }
+  if (!editTAMId) { toast('No record selected', 'warn'); return; }
+  const r = localData.grouting.find(g => String(g.id) === String(editTAMId));
+  adminConfirm('Delete TAM record: Pt ' + (r?.pointNo || '') + ' — ' + (r?.location || '') + '?', async () => {
+    localData.grouting = localData.grouting.filter(g => String(g.id) !== String(editTAMId));
+    save(); qDel('grouting', editTAMId);
+    await flushQueue().catch(() => {});
+    updateCounts(); renderGroutList();
+    toast('TAM record deleted', 'ok'); nav('s-grout-list');
+  });
+}
+
+
+// ════════════════════════════════════════════════════════════════
+// ADMIN ROLE
+// ════════════════════════════════════════════════════════════════
+const ADMIN_PW = 'Keller2026';
+let isAdmin = false; // resets on page reload — use sessionStorage
+
+try {
+  isAdmin = sessionStorage.getItem('dg_admin') === '1';
+} catch(e) { isAdmin = false; }
+
+function updateAdminUI() {
+  const ind  = document.getElementById('admin-indicator');
+  const sts  = document.getElementById('settings-admin-status');
+  const btn  = document.getElementById('settings-admin-btn');
+  if (ind) ind.style.display = isAdmin ? 'block' : 'none';
+  if (sts) sts.textContent   = isAdmin ? '✓ Signed in as Admin — delete is enabled' : 'Admin login required to delete records.';
+  if (sts) sts.style.color   = isAdmin ? 'var(--teal)' : 'var(--muted)';
+  if (btn) btn.textContent   = isAdmin ? 'Sign out of Admin' : 'Admin login';
+  if (btn) btn.className     = isAdmin ? 'btn btn-danger' : 'btn btn-ghost';
+  // Show delete buttons only when admin AND editing an existing record
+  const drillDelBtn = document.getElementById('drill-del-btn');
+  const rfgDelBtn   = document.getElementById('rfg-del-btn');
+  const tamDelBtn   = document.getElementById('tam-del-btn');
+  if (drillDelBtn) drillDelBtn.style.display = (isAdmin && editDrillId) ? 'block' : 'none';
+  if (rfgDelBtn)   rfgDelBtn.style.display   = (isAdmin && editRFGId)   ? 'block' : 'none';
+  if (tamDelBtn)   tamDelBtn.style.display   = (isAdmin && editTAMId)   ? 'block' : 'none';
+  // Project delete card on project screen
+  const projDelCard = document.getElementById('admin-proj-delete-card');
+  if (projDelCard) projDelCard.style.display = isAdmin ? 'block' : 'none';
+}
+
+function doAdminLogin() {
+  const pw = document.getElementById('admin-pw-inp').value;
+  if (pw === ADMIN_PW) {
+    isAdmin = true;
+    try { sessionStorage.setItem('dg_admin', '1'); } catch(e) {}
+    closeModal();
+    updateAdminUI();
+    toast('Admin access enabled — delete is now active', 'ok');
+  } else {
+    document.getElementById('admin-pw-err').style.display = 'block';
+    document.getElementById('admin-pw-inp').value = '';
+  }
+}
+
+// Admin confirm modal (replaces browser confirm() which is blocked on mobile)
+let _adminDelCb = null;
+function adminConfirm(label, cb) {
+  _adminDelCb = cb;
+  const body = document.getElementById('admin-confirm-body');
+  if (body) body.textContent = label || 'This record will be permanently deleted from Supabase and cannot be recovered.';
+  document.getElementById('ov-admin-confirm').classList.add('show');
+}
+function execAdminDelete() {
+  closeModal();
+  if (_adminDelCb) { _adminDelCb(); _adminDelCb = null; }
+}
+
+function adminLogout() {
+  isAdmin = false;
+  try { sessionStorage.removeItem('dg_admin'); } catch(e) {}
+  updateAdminUI();
+  toast('Signed out of Admin');
+}
+
+function toggleAdminFromSettings() {
+  if (isAdmin) {
+    adminLogout();
+    closeModal();
+  } else {
+    closeModal();
+    setTimeout(() => {
+      document.getElementById('admin-pw-inp').value = '';
+      document.getElementById('admin-pw-err').style.display = 'none';
+      document.getElementById('ov-admin').classList.add('show');
+      setTimeout(() => document.getElementById('admin-pw-inp').focus(), 200);
+    }, 300);
+  }
+}
+
+
+function delProject() {
+  if (!isAdmin) { toast('Admin access required', 'warn'); return; }
+  if (!currentProject) return;
+  adminConfirm(
+    'Delete project "' + currentProject.code + ' — ' + currentProject.name + '" and ALL its drilling and grouting records? This cannot be undone.',
+    async () => {
+      const pc = currentProject.code;
+      const projId = currentProject.id;
+      // Remove from local cache
+      localData.projects  = localData.projects.filter(p => String(p.id) !== String(projId));
+      localData.drilling  = localData.drilling.filter(r => r.projectCode !== pc);
+      localData.grouting  = localData.grouting.filter(r => r.projectCode !== pc);
+      save();
+      // Queue deletions
+      qDel('projects', projId);
+      // Delete all drilling/grouting for this project directly from Supabase
+      try {
+        await fetch(SB_URL + '/rest/v1/dg_drilling?project_code=eq.' + encodeURIComponent(pc),
+          { method: 'DELETE', headers: SB_H });
+        await fetch(SB_URL + '/rest/v1/dg_grouting?project_code=eq.' + encodeURIComponent(pc),
+          { method: 'DELETE', headers: SB_H });
+        await sbUpsert('dg_projects', { id: projId, app_id: projId }); // will fail on missing fields but that's ok
+        await fetch(SB_URL + '/rest/v1/dg_projects?app_id=eq.' + encodeURIComponent(String(projId)),
+          { method: 'DELETE', headers: SB_H });
+      } catch(e) { console.warn('Project delete from Supabase:', e.message); }
+      currentProject = null;
+      renderHome();
+      toast('Project deleted', 'ok');
+      nav('s-home');
+    }
+  );
+}
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+async function init() {
+  try {
+    // Set operator label
+    const lbl=document.getElementById('home-sub');
+    if(lbl)lbl.textContent=operatorName?'Operator: '+operatorName:'Tap Settings to set your name';
+    renderHome();
+    // Prompt for name if not set
+    if(!operatorName) {
+      document.getElementById('op-name-inp').value='';
+      document.getElementById('ov-operator').classList.add('show');
+    }
+    // Apply admin UI state
+    updateAdminUI();
+    // Background sync
+    bgSyncHome();
+  } catch(e){console.error('Init:',e);}
+}
+
+init();
+</script>
+</body></html>
