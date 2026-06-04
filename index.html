@@ -29,10 +29,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Barlow',
 
 /* HERO HOME */
 .home-hero{flex-shrink:0;background:var(--k-dark);min-height:148px;position:relative;overflow:hidden;padding:calc(var(--safe-top)+0px) 0 0}
-.hh-stripe{position:absolute;top:0;bottom:0;right:0;width:45%;background:var(--k-navy);clip-path:polygon(18% 0,100% 0,100% 100%,0% 100%)}
-.hh-stripe2{position:absolute;top:0;bottom:0;right:0;width:28%;background:var(--k-orange);clip-path:polygon(22% 0,100% 0,100% 100%,0% 100%);opacity:.9}
+.hh-stripe{position:absolute;top:0;bottom:0;right:0;width:40%;background:var(--k-navy);clip-path:polygon(18% 0,100% 0,100% 100%,0% 100%)}
+.hh-stripe2{position:absolute;top:0;bottom:0;right:0;width:22%;background:var(--k-orange);clip-path:polygon(22% 0,100% 0,100% 100%,0% 100%);opacity:.9}
 .hh-lines{position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 60px)}
-.hh-inner{position:relative;z-index:2;padding:20px 18px 18px}
+.hh-inner{position:relative;z-index:2;padding:10px 16px 10px}
 .hh-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--k-orange);margin-bottom:6px}
 .hh-title{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:900;color:#fff;letter-spacing:-.01em;line-height:.95;margin-bottom:8px}
 .hh-title em{color:var(--k-orange);font-style:normal}
@@ -651,6 +651,181 @@ body { color: var(--text-main); }
 .do-chip-val{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff}
 .do-chip-unit{font-size:9px;color:var(--steel);margin-top:1px}
 
+
+/* ═══════════════════════════════════════════════════
+   HOME DASHBOARD
+═══════════════════════════════════════════════════ */
+.dash-wrap { margin-bottom: 4px; }
+
+/* Toggle */
+.dash-toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.dash-toggle-row .slbl { margin: 0; }
+.dash-period {
+  display: flex; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 8px; overflow: hidden;
+}
+.dp-btn {
+  padding: 5px 14px; border: none; background: transparent;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700;
+  letter-spacing: .07em; text-transform: uppercase; color: var(--steel);
+  cursor: pointer; transition: all .15s;
+}
+.dp-btn.active {
+  background: var(--k-orange); color: #fff;
+  box-shadow: 0 2px 8px rgba(232,119,34,.35);
+}
+
+/* Date label */
+.dash-date-lbl {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 600;
+  color: var(--steel); letter-spacing: .07em; text-align: center;
+  margin-bottom: 10px; text-transform: uppercase;
+}
+
+/* Grid */
+.dash-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px;
+}
+.dash-grid-3 {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;
+}
+
+/* Cards */
+.dc {
+  border-radius: 12px; padding: 12px 14px; position: relative; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.07);
+  transition: transform .15s;
+}
+.dc:active { transform: scale(.98); }
+.dc-navy  { background: linear-gradient(135deg, #131D3B, #0A0F1E); }
+.dc-orange{ background: linear-gradient(135deg, #7A3200, #3D1900); border-color: rgba(232,119,34,.2); }
+.dc-green { background: linear-gradient(135deg, #063D28, #021A10); border-color: rgba(11,107,72,.25); }
+.dc-purple{ background: linear-gradient(135deg, #1A1040, #0A0520); border-color: rgba(139,92,246,.2); }
+.dc-steel { background: linear-gradient(135deg, #141D2E, #0A1020); border-color: rgba(96,165,250,.15); }
+.dc-amber { background: linear-gradient(135deg, #2A1800, #180E00); border-color: rgba(251,191,36,.2); }
+
+/* Glow orb */
+.dc::after {
+  content: ''; position: absolute; top: -20px; right: -20px;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.04), transparent 70%);
+  pointer-events: none;
+}
+
+.dc-icon {
+  font-size: 18px; margin-bottom: 6px; display: block; opacity: .85;
+}
+.dc-val {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 900; color: #fff;
+  line-height: 1; letter-spacing: -.01em; margin-bottom: 2px;
+}
+.dc-val-sm { font-size: 20px; }
+.dc-unit {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; color: rgba(255,255,255,.4);
+  letter-spacing: .1em; text-transform: uppercase;
+}
+.dc-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,.45);
+  letter-spacing: .06em; text-transform: uppercase; margin-top: 4px;
+}
+.dc-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; color: rgba(255,255,255,.25);
+  margin-top: 3px; letter-spacing: .04em;
+}
+
+/* Wide card (full width) */
+.dc-wide { grid-column: span 2; }
+
+/* Divider row label */
+.dash-section {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700;
+  color: rgba(232,119,34,.6); letter-spacing: .18em; text-transform: uppercase;
+  margin: 10px 0 8px; display: flex; align-items: center; gap: 8px;
+}
+.dash-section::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(232,119,34,.2), transparent);
+}
+
+/* Zero state */
+.dash-zero {
+  text-align: center; padding: 20px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px;
+  color: var(--steel); letter-spacing: .04em;
+}
+
+
+/* ═══════════════════════════ DASHBOARD ═══════════════════════════ */
+/* Tab button on home */
+.dash-tab-btn {
+  display:flex;align-items:center;gap:8px;width:100%;
+  padding:14px 16px;border-radius:12px;margin-bottom:10px;
+  background:linear-gradient(135deg,rgba(232,119,34,.15),rgba(232,119,34,.05));
+  border:1px solid rgba(232,119,34,.3);cursor:pointer;transition:all .15s;
+}
+.dash-tab-btn:active{transform:scale(.98);}
+.dash-tab-ico{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--k-orange),#C55C0A);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 12px rgba(232,119,34,.4);}
+.dash-tab-lbl{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff;letter-spacing:.03em;}
+.dash-tab-sub{font-size:11px;color:rgba(232,119,34,.7);margin-top:1px;}
+.dash-tab-arr{margin-left:auto;color:rgba(232,119,34,.5);font-size:22px;}
+
+/* Site pills */
+.site-pills{display:flex;gap:6px;overflow-x:auto;padding:10px 14px 8px;scrollbar-width:none;flex-shrink:0;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.05);}
+.site-pills::-webkit-scrollbar{display:none;}
+.sp{flex-shrink:0;padding:6px 14px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .15s;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--slate);}
+.sp.active{background:var(--k-orange);border-color:var(--k-orange);color:#fff;box-shadow:0 2px 10px rgba(232,119,34,.4);}
+
+/* Period toggle */
+.dash-ctrl{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;flex-shrink:0;}
+.dash-ctrl-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:rgba(232,119,34,.6);letter-spacing:.15em;text-transform:uppercase;}
+.dash-period2{display:flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden;}
+.dp2{padding:5px 14px;border:none;background:transparent;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--steel);cursor:pointer;transition:all .15s;}
+.dp2.active{background:var(--k-orange);color:#fff;}
+
+/* Chart sections */
+.ch-section{padding:0 14px 10px;}
+.ch-title{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:rgba(232,119,34,.65);letter-spacing:.15em;text-transform:uppercase;margin:14px 0 8px;display:flex;align-items:center;gap:8px;}
+.ch-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(232,119,34,.2),transparent);}
+.ch-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-bottom:10px;overflow:hidden;}
+.ch-card-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--steel);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+
+/* Bar chart */
+.bar-chart{width:100%;overflow:hidden;}
+
+/* Horizontal resource bars */
+.res-bar-wrap{margin-bottom:12px;}
+.res-bar-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.res-bar-lbl{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:#E8ECF4;letter-spacing:.03em;}
+.res-bar-val{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:#fff;}
+.res-bar-unit{font-size:10px;color:var(--steel);margin-left:3px;}
+.res-bar-track{height:8px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;}
+.res-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.kpi-cell{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;}
+.kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:#fff;line-height:1;}
+.kpi-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--steel);letter-spacing:.07em;text-transform:uppercase;margin-top:3px;}
+.kpi-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;}
+
+/* Empty dash */
+.dash-empty{text-align:center;padding:50px 20px;color:var(--steel);}
+.dash-empty div:first-child{font-size:48px;margin-bottom:12px;}
+
+
+/* Sub-locations */
+.subloc-row{display:flex;align-items:center;padding:10px 14px;border-bottom:.5px solid rgba(255,255,255,.06);}
+.subloc-row:last-child{border-bottom:none;}
+.subloc-pin{font-size:14px;margin-right:10px;flex-shrink:0;}
+.subloc-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:#E8ECF4;flex:1;}
+.subloc-add{display:flex;gap:8px;padding:10px 14px;border-top:.5px solid rgba(255,255,255,.06);}
 </style>
 </head>
 <body>
@@ -668,7 +843,7 @@ body { color: var(--text-main); }
   <div id="home-sync" class="sync-strip ss-check" style="display:none">
     <span class="sdot"></span><span id="home-sync-txt">Connecting…</span>
   </div>
-  <div style="padding:8px 14px 4px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+  <div style="padding:5px 14px 4px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
     <div id="admin-pill-wrap" style="display:none">
       <div class="admin-pill" onclick="adminLogout()">&#9654; ADMIN &nbsp;&#10005;</div>
     </div>
@@ -677,10 +852,22 @@ body { color: var(--text-main); }
     </div>
   </div>
   <div class="scroll" style="padding-top:4px">
+
+    <!-- Dashboard tab button (home screen) -->
+    <div class="dash-tab-btn" onclick="openDashboard()">
+      <div class="dash-tab-ico">📊</div>
+      <div>
+        <div class="dash-tab-lbl">Site Dashboard</div>
+        <div class="dash-tab-sub">Charts &amp; performance metrics</div>
+      </div>
+      <div class="dash-tab-arr">›</div>
+    </div>
+
     <div class="slbl">Active Projects</div>
     <div id="proj-active"></div>
     <div class="slbl">Completed</div>
     <div id="proj-done"></div>
+
     <!-- DO quick entry card (admin only) -->
     <div id="do-home-card" style="margin-top:4px">
       <div class="slbl" style="margin-top:18px">Delivery Orders</div>
@@ -719,6 +906,19 @@ body { color: var(--text-main); }
     <div id="proj-comp-banner" style="display:none" class="comp-banner">
       <div class="comp-title">&#9632; Project Completed</div>
       <div class="comp-sub">No further edits. Contact admin to re-open.</div>
+    </div>
+
+    <!-- Sub-locations -->
+    <div class="slbl" style="margin-top:6px">Sub-locations</div>
+    <div class="mc" id="subloc-card">
+      <div style="padding:14px;color:var(--steel);font-size:13px;text-align:center">—</div>
+    </div>
+    <div id="subloc-add-area" style="display:none;margin-bottom:4px">
+      <div style="display:flex;gap:8px">
+        <input class="inp" id="subloc-inp" type="text" placeholder="e.g. Pump Room, Level B1, Zone A…" style="flex:1"
+          onkeydown="if(event.key==='Enter')addSubLoc()">
+        <button onclick="addSubLoc()" style="height:44px;padding:0 16px;background:var(--k-orange);color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;white-space:nowrap;flex-shrink:0">+ Add</button>
+      </div>
     </div>
     <div class="mc">
       <div class="mi" onclick="guardedNav(openDrillList)">
@@ -786,7 +986,12 @@ body { color: var(--text-main); }
     <div class="slbl">Identification</div>
     <div class="fg"><label class="lbl req">Operator name</label><input class="inp" id="d-op" type="text" placeholder="Your full name"></div>
     <div class="fg"><label class="lbl req">Point No.</label><input class="inp" id="d-pt" type="text" placeholder="e.g. 67 or A-12" autocomplete="off" autocorrect="off" autocapitalize="off"></div>
-    <div class="fg"><label class="lbl req">Location</label><input class="inp" id="d-loc" type="text" placeholder="e.g. 206 Bound"></div>
+    <div class="fg"><label class="lbl req">Sub-location</label>
+      <select class="sel" id="d-loc"><option value="">— select sub-location —</option></select>
+      <div id="d-loc-hint" style="font-size:11px;color:var(--k-orange);margin-top:5px;display:none">
+        No sub-locations set — add them on the Project screen first
+      </div>
+    </div>
     <div class="fg"><label class="lbl req">Drill start date</label><input class="inp" id="d-date" type="date"></div>
     <div class="slbl">Borehole</div>
     <div class="fg2">
@@ -1180,9 +1385,9 @@ body { color: var(--text-main); }
 
 const SB_URL='https://xprmrqmuwteelalpayfz.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhwcm1ycW11d3RlZWxhbHBheWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMzM2NTMsImV4cCI6MjA5NTcwOTY1M30.8XAt0_Ab228t0P-wvQIjhlmHygutwV_mxE4bF3XtbxI';
 const SBH={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
-const FM={'appId':'app_id','projectCode':'project_code','pointNo':'point_no','drillStartDate':'drill_start_date','groutingCompletion':'grouting_completion','groundLevel':'ground_level','soilLength':'soil_length','rockLength':'rock_length','totalLength':'total_length','sleevePipeLength':'sleeve_pipe_length','nonSleevePipeLength':'non_sleeve_pipe_length','appModified':'app_modified','appCreated':'app_created','groutType':'grout_type','groutStatus':'grout_status','groutBottom':'grout_bottom','groutTop':'grout_top','groutingLength':'grouting_length','lugeonType':'lugeon_type','lugeonReported':'lugeon_reported','lugeonStages':'lugeon_stages','volPerM':'vol_per_m','totalVolumeCalc':'total_volume_calc','rfgMixes':'rfg_mixes','totalOPC':'total_opc','totalMFC':'total_mfc','totalCement':'total_cement','tamPass':'tam_pass','tamTotalLength':'tam_total_length','tamVolPerM':'tam_vol_per_m','tamStages':'tam_stages','tamTotalVol':'tam_total_vol','sleevePipe':'sleeve_pipe','isLocked':'is_locked','groutStage':'grout_stage','lengthPerStage':'length_per_stage','volLimit':'vol_limit'};
+const FM={'appId':'app_id','projectCode':'project_code','pointNo':'point_no','drillStartDate':'drill_start_date','groutingCompletion':'grouting_completion','groundLevel':'ground_level','soilLength':'soil_length','rockLength':'rock_length','totalLength':'total_length','sleevePipeLength':'sleeve_pipe_length','nonSleevePipeLength':'non_sleeve_pipe_length','appModified':'app_modified','appCreated':'app_created','groutType':'grout_type','groutStatus':'grout_status','groutBottom':'grout_bottom','groutTop':'grout_top','groutingLength':'grouting_length','lugeonType':'lugeon_type','lugeonReported':'lugeon_reported','lugeonStages':'lugeon_stages','volPerM':'vol_per_m','totalVolumeCalc':'total_volume_calc','rfgMixes':'rfg_mixes','totalOPC':'total_opc','totalMFC':'total_mfc','totalCement':'total_cement','tamPass':'tam_pass','tamTotalLength':'tam_total_length','tamVolPerM':'tam_vol_per_m','tamStages':'tam_stages','tamTotalVol':'tam_total_vol','sleevePipe':'sleeve_pipe','isLocked':'is_locked','groutStage':'grout_stage','subLocations':'sub_locations','lengthPerStage':'length_per_stage','volLimit':'vol_limit'};
 const FM_REV=Object.fromEntries(Object.entries(FM).map(([k,v])=>[v,k]));
-const JSONB=new Set(['strata','rfg_mixes','tam_stages','lugeon_stages']);
+const JSONB=new Set(['strata','rfg_mixes','tam_stages','lugeon_stages','sub_locations']);
 function toSB(o){const r={};for(const k of Object.keys(o)){if(k==='_spId'||k==='_rowIndex'||k==='id')continue;const sk=FM[k]||k,v=o[k];if(v===null||v===undefined){r[sk]=null;continue;}if(JSONB.has(sk)){r[sk]=(typeof v==='string')?JSON.parse(v):v;continue;}if(typeof v==='object'){r[sk]=JSON.stringify(v);continue;}r[sk]=v;}if(o.id)r.app_id=String(o.id);// Always explicitly send is_locked as boolean
 if('isLocked' in o)r.is_locked=Boolean(o.isLocked);return r;}
 function fromSB(o){const r={};for(const k of Object.keys(o)){if(k==='id'||k==='created_at')continue;const ck=FM_REV[k]||k;let v=o[k];// Coerce boolean fields
@@ -1236,6 +1441,7 @@ function updAdminUI(){
   if(sts){sts.textContent=isAdmin?'✓ Admin mode active — edit & delete enabled':'Admin login required to edit locked records.';sts.style.color=isAdmin?'var(--green)':'var(--steel)';}
   if(btn){btn.textContent=isAdmin?'SIGN OUT OF ADMIN':'ADMIN LOGIN';btn.className=isAdmin?'btn btn-danger':'btn btn-ghost';}
   const adp=document.getElementById('admin-del-proj');if(adp)adp.style.display=isAdmin?'block':'none';
+  const saa=document.getElementById('subloc-add-area');if(saa)saa.style.display=isAdmin?'flex':'none';
   const npb=document.getElementById('new-proj-btn');if(npb)npb.style.display=isAdmin?'block':'none';
   updDOHomeCount();
   const aps=document.getElementById('admin-proj-status');if(aps)aps.style.display=isAdmin?'block':'none';
@@ -1351,7 +1557,7 @@ async function openProject(id){
   curProj=ld.projects.find(p=>String(p.id)===String(id));if(!curProj)return;
   document.getElementById('proj-hdr-title').textContent=curProj.code;
   document.getElementById('proj-hdr-sub').textContent=curProj.name;
-  syncOk=false;syncDismissed=false;nav('s-project');updCounts();
+  syncOk=false;syncDismissed=false;nav('s-project');updCounts();renderSubLocs();
   updProjStatusUI();updAdminUI();setPill('check','Checking…');
   const pc=curProj.code;
   if(!ld.drilling.some(r=>r.projectCode===pc)&&!ld.grouting.some(r=>r.projectCode===pc)&&navigator.onLine){
@@ -1453,6 +1659,7 @@ function renderDrillList(){
 }
 function setDFields(lk){['d-op','d-pt','d-loc','d-date','d-gl','d-sp','d-nsp'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.getElementById('d-ori').disabled=lk;document.querySelectorAll('#strata-rows input,#strata-rows select').forEach(e=>e.disabled=lk);const a=document.getElementById('strata-add');if(a)a.style.display=lk?'none':'block';}
 function openDrillForm(id){
+  populateLocDrop();
   editDId=id;const lb=document.getElementById('d-lk-banner');
   if(id){const r=ld.drilling.find(d=>String(d.id)===String(id));if(!r)return;
     document.getElementById('dform-title').textContent='Drilling Record';
@@ -2401,6 +2608,7 @@ function saveDO() {
   renderDOList();
   renderDOTotals();
   updDOHomeCount();
+  if(typeof renderDashboard==='function')renderDashboard();
   celebrate('DO Saved!', rec.volume + ' ' + rec.unit + ' — ' + rec.doType);
   nav('s-do-list');
 }
@@ -2416,6 +2624,548 @@ function delDO() {
 }
 
 
+
+
+// ═══════════════════════════════════════════════════════════════
+// HOME DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+let dashPeriod = 'day';
+
+function setDashPeriod(p) {
+  dashPeriod = p;
+  document.getElementById('dp-day').classList.toggle('active',  p === 'day');
+  document.getElementById('dp-week').classList.toggle('active', p === 'week');
+  renderDashboard();
+}
+
+function dashDateRange(p) {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  if (p === 'day') {
+    return { start: todayStr, end: todayStr, days: 1,
+      label: 'Today — ' + now.toLocaleDateString('en-SG', { day:'2-digit', month:'short', year:'numeric' }) };
+  }
+  // Monday–today
+  const dow = now.getDay(); // 0=Sun
+  const diffToMon = (dow === 0) ? 6 : dow - 1;
+  const mon = new Date(now); mon.setDate(now.getDate() - diffToMon);
+  const monStr = mon.toISOString().slice(0, 10);
+  const daysSinceMon = diffToMon + 1; // incl today
+  const label = mon.toLocaleDateString('en-SG', { day:'2-digit', month:'short' })
+              + ' – ' + now.toLocaleDateString('en-SG', { day:'2-digit', month:'short' });
+  return { start: monStr, end: todayStr, days: daysSinceMon, label };
+}
+
+function calcDash(p) {
+  const { start, end, days, label } = dashDateRange(p);
+
+  // Drilling — filter by drillStartDate
+  const drills = (ld.drilling || []).filter(r =>
+    r.drillStartDate && r.drillStartDate >= start && r.drillStartDate <= end
+  );
+  const points   = new Set(drills.map(r => String(r.pointNo))).size;
+  const totalLen = r2(drills.reduce((s, r) => s + (parseFloat(r.totalLength) || 0), 0));
+
+  // DO log — filter by date
+  const dos = (ld.deliveries || []).filter(r => r.date && r.date >= start && r.date <= end);
+  const diesel = r2(dos.filter(r => r.doType === 'Diesel').reduce((s, r) => s + (parseFloat(r.volume)||0), 0));
+  const cement = r3(dos.filter(r => r.doType === 'Cement').reduce((s, r) => s + (parseFloat(r.volume)||0), 0));
+  const sludge = r2(dos.filter(r => r.doType === 'Vacuum').reduce((s, r) => s + (parseFloat(r.volume)||0), 0));
+
+  const ptsPerDay    = days > 0 ? r2(points   / days) : 0;
+  const lenPerDay    = days > 0 ? r2(totalLen / days) : 0;
+  const dieselPerLen = totalLen > 0 ? r2(diesel  / totalLen) : null;
+  const cemPerLen    = totalLen > 0 ? r3(cement  / totalLen) : null;
+
+  return { points, totalLen, ptsPerDay, lenPerDay, diesel, dieselPerLen, cement, cemPerLen, sludge, days, label };
+}
+
+function dcCard(icon, val, unit, lbl, cls, sub, wide) {
+  const vClass = String(val).length > 5 ? 'dc-val dc-val-sm' : 'dc-val';
+  const display = (val === null || val === undefined || val === 0 && lbl !== 'Diesel') ? (val === 0 ? '0' : '—') : val;
+  return `<div class="dc ${cls||'dc-navy'}${wide?' dc-wide':''}">
+    <span class="dc-icon">${icon}</span>
+    <div class="${vClass}">${display}</div>
+    <div class="dc-unit">${unit}</div>
+    <div class="dc-lbl">${lbl}</div>
+    ${sub ? `<div class="dc-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+function renderDashboard() {
+  const d = calcDash(dashPeriod);
+  const lbl = document.getElementById('dash-date-lbl');
+  if (lbl) lbl.textContent = d.label;
+
+  const hasAny = d.points > 0 || d.totalLen > 0 || d.diesel > 0 || d.cement > 0 || d.sludge > 0;
+
+  if (!hasAny) {
+    document.getElementById('dash-body').innerHTML = `<div class="dash-zero">No data recorded for this period</div>`;
+    return;
+  }
+
+  const periodSub = dashPeriod === 'week' ? `over ${d.days} day${d.days!==1?'s':''}` : 'today';
+
+  document.getElementById('dash-body').innerHTML = `
+    <div class="dash-section">Drilling</div>
+    <div class="dash-grid">
+      ${dcCard('⛏', d.points,   'pts',   'Points',         'dc-navy',   periodSub)}
+      ${dcCard('📏', d.totalLen, 'm',     'Drill Length',   'dc-navy',   periodSub)}
+      ${dcCard('📍', d.ptsPerDay,'pts/d', 'Points / Day',   'dc-steel',  '')}
+      ${dcCard('📐', d.lenPerDay,'m/d',   'Length / Day',   'dc-steel',  '')}
+    </div>
+    <div class="dash-section">Resources</div>
+    <div class="dash-grid">
+      ${dcCard('⛽', d.diesel,   'L',     'Diesel',                         'dc-amber',  periodSub)}
+      ${dcCard('⛽', d.dieselPerLen !== null ? d.dieselPerLen : '—', 'L/m', 'Diesel / Drill m', 'dc-amber',  d.totalLen > 0 ? '' : 'no drilling yet')}
+    </div>
+    <div class="dash-grid">
+      ${dcCard('🧱', d.cement,   'T',     'Cement Ordered',                 'dc-purple', periodSub)}
+      ${dcCard('🧱', d.cemPerLen !== null ? d.cemPerLen : '—', 'T/m',       'Cement / Drill m', 'dc-purple', d.totalLen > 0 ? '' : 'no drilling yet')}
+    </div>
+    <div class="dash-grid" style="margin-bottom:14px">
+      ${dcCard('🌀', d.sludge,   'trips', 'Total Sludge',   'dc-green',  periodSub, false)}
+      <div class="dc dc-navy" style="display:flex;align-items:center;justify-content:center;opacity:.3">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,.5);text-align:center;letter-spacing:.06em">MORE<br>COMING</div>
+      </div>
+    </div>
+  `;
+}
+
+
+
+
+// ═══════════════════════════════════════════════════════════════
+// DASHBOARD MODULE
+// ═══════════════════════════════════════════════════════════════
+const DASH_PW = 'win';
+let dash2Period     = 'week';
+let dash2WeekOffset = 0;   // 0 = current week, -1 = last week…
+let dash2MonthOffset= 0;   // 0 = current month, -1 = last month…
+let dash2Site       = 'all';
+let dashUnlocked    = false;
+
+function openDashboard() {
+  try { dashUnlocked = sessionStorage.getItem('dash_unlocked') === '1'; } catch(e) {}
+  if (!dashUnlocked) {
+    document.getElementById('dash-pw-inp').value = '';
+    document.getElementById('dash-pw-err').style.display = 'none';
+    document.getElementById('ov-dash-pw').classList.add('show');
+    setTimeout(() => document.getElementById('dash-pw-inp').focus(), 300);
+  } else { launchDashboard(); }
+}
+
+function doDashLogin() {
+  if (document.getElementById('dash-pw-inp').value === DASH_PW) {
+    dashUnlocked = true;
+    try { sessionStorage.setItem('dash_unlocked', '1'); } catch(e) {}
+    closeModal(); launchDashboard();
+  } else {
+    document.getElementById('dash-pw-err').style.display = 'block';
+    document.getElementById('dash-pw-inp').value = '';
+  }
+}
+
+function launchDashboard() {
+  buildDashSitePills();
+  dash2Site = 'all'; dash2Period = 'week';
+  dash2WeekOffset = 0; dash2MonthOffset = 0;
+  document.getElementById('d2-week').classList.add('active');
+  document.getElementById('d2-month').classList.remove('active');
+  nav('s-dashboard'); renderDash2();
+}
+
+function setDash2Period(p) {
+  dash2Period = p;
+  document.getElementById('d2-week').classList.toggle('active',  p === 'week');
+  document.getElementById('d2-month').classList.toggle('active', p === 'month');
+  renderDash2();
+}
+
+function dashNav(dir) {
+  const now = new Date();
+  if (dash2Period === 'week') {
+    const newOff = dash2WeekOffset + dir;
+    if (newOff > 0) return; // can't go into the future
+    dash2WeekOffset = newOff;
+  } else {
+    const newOff = dash2MonthOffset + dir;
+    const testDate = new Date(now.getFullYear(), now.getMonth() + newOff + 1, 0);
+    if (testDate > now) return; // can't go into the future
+    dash2MonthOffset = newOff;
+  }
+  // Grey out forward button at current period
+  const fwd = document.getElementById('dash-nav-fwd');
+  if (fwd) {
+    const atCurrent = (dash2Period === 'week' && dash2WeekOffset === 0) ||
+                      (dash2Period === 'month' && dash2MonthOffset === 0);
+    fwd.style.opacity = atCurrent ? '0.2' : '0.5';
+    fwd.style.cursor  = atCurrent ? 'default' : 'pointer';
+  }
+  renderDash2();
+}
+
+function setDash2Site(code) {
+  dash2Site = code;
+  document.querySelectorAll('.sp').forEach(b => b.classList.toggle('active', b.dataset.site === code));
+  const sub = document.getElementById('dash-hdr-sub');
+  if (sub) sub.textContent = code === 'all' ? 'All Projects' : code;
+  renderDash2();
+}
+
+function buildDashSitePills() {
+  const container = document.getElementById('dash-site-pills');
+  if (!container) return;
+  const projects = (ld.projects || []).filter(p => p.status !== 'Completed');
+  let html2 = `<div class="sp active" data-site="all" onclick="setDash2Site('all')">All Projects</div>`;
+  projects.forEach(p => {
+    html2 += `<div class="sp" data-site="${esc(p.code)}" onclick="setDash2Site('${esc(p.code)}')">${esc(p.code)}</div>`;
+  });
+  container.innerHTML = html2;
+}
+
+// ── Date range helpers ────────────────────────────────────────────
+function dash2Range() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+
+  if (dash2Period === 'week') {
+    const dow = now.getDay();
+    const diffToMon = dow === 0 ? 6 : dow - 1;
+    const mon = new Date(now);
+    mon.setDate(now.getDate() - diffToMon + dash2WeekOffset * 7);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const start = mon.toISOString().slice(0,10);
+    const end   = sun.toISOString().slice(0,10);
+    const cappedEnd = end > todayStr ? todayStr : end;
+    const label = mon.toLocaleDateString('en-SG',{day:'2-digit',month:'short'})
+                + ' – ' + sun.toLocaleDateString('en-SG',{day:'2-digit',month:'short',year:'numeric'});
+    const days = cappedEnd >= start
+      ? Math.floor((new Date(cappedEnd)-new Date(start))/86400000)+1 : 0;
+    return { start, end: cappedEnd, days, label, monDate: mon, sunDate: sun };
+  } else {
+    // Month
+    const d = new Date(now.getFullYear(), now.getMonth() + dash2MonthOffset, 1);
+    const lastDay = new Date(d.getFullYear(), d.getMonth()+1, 0);
+    const start = d.toISOString().slice(0,10);
+    const end   = lastDay.toISOString().slice(0,10);
+    const cappedEnd = end > todayStr ? todayStr : end;
+    const label = d.toLocaleDateString('en-SG',{month:'long',year:'numeric'});
+    const days = Math.floor((new Date(cappedEnd)-new Date(start))/86400000)+1;
+    return { start, end: cappedEnd, days, label, monthYear: d };
+  }
+}
+
+// ── Week days array (Mon-Sun) for selected week ───────────────────
+function dash2WeekDays() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const dow = now.getDay();
+  const diffToMon = dow === 0 ? 6 : dow - 1;
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - diffToMon + dash2WeekOffset * 7);
+  const lbls = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return Array.from({length:7}, (_, i) => {
+    const d = new Date(mon); d.setDate(mon.getDate() + i);
+    const ds = d.toISOString().slice(0, 10);
+    return { label: lbls[i].slice(0,1), fullLabel: lbls[i], dateStr: ds,
+             isToday: ds === todayStr, isFuture: ds > todayStr };
+  });
+}
+
+// ── Month weeks array (W1…W5) for selected month ─────────────────
+function dash2MonthWeeks() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const base = new Date(now.getFullYear(), now.getMonth() + dash2MonthOffset, 1);
+  const lastDay = new Date(base.getFullYear(), base.getMonth()+1, 0);
+  const weeks = [];
+  // Find Monday on or before 1st of month
+  let cur = new Date(base);
+  const startDow = cur.getDay();
+  cur.setDate(cur.getDate() - (startDow === 0 ? 6 : startDow - 1));
+  let wNum = 1;
+  while (cur <= lastDay) {
+    const wStart = new Date(cur);
+    const wEnd   = new Date(cur); wEnd.setDate(wEnd.getDate() + 6);
+    // Clip to month
+    const clS = wStart < base    ? base    : wStart;
+    const clE = wEnd   > lastDay ? lastDay : wEnd;
+    const startStr = clS.toISOString().slice(0,10);
+    const endStr   = clE.toISOString().slice(0,10);
+    const cappedEnd = endStr > todayStr ? todayStr : endStr;
+    const isFuture = startStr > todayStr;
+    weeks.push({ label:'W'+wNum, startStr, endStr: cappedEnd, isFuture,
+      fullLabel: clS.toLocaleDateString('en-SG',{day:'2-digit',month:'short'}) + '–' +
+                 clE.toLocaleDateString('en-SG',{day:'2-digit',month:'short'}) });
+    wNum++; cur.setDate(cur.getDate() + 7);
+  }
+  return weeks;
+}
+
+// ── SVG BAR CHART (shared, data-agnostic) ────────────────────────
+function svgBarsData(items, color) {
+  // items: [{label, value, isToday, isFuture, fullLabel}]
+  const vals = items.map(d => d.isFuture ? 0 : (d.value || 0));
+  const maxVal = Math.max(...vals, 1);
+  const n = items.length;
+  const W = 300, H = 110;
+  const PL = 38, PB = 22, PT = 14, PR = 6;
+  const cW = W - PL - PR, cH = H - PT - PB;
+  const barW = Math.max(8, Math.floor(cW / n * 0.55));
+  const slotW = cW / n;
+
+  let grid = '', yLbls = '', bars = '', xLbls = '', vTxt = '';
+
+  [0, 0.33, 0.67, 1].forEach(t => {
+    const y = r2(PT + cH - t * cH);
+    const tv = r2(maxVal * t);
+    grid  += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="rgba(255,255,255,.07)" stroke-width="1"/>`;
+    yLbls += `<text x="${PL-4}" y="${y+3}" text-anchor="end" font-size="8" fill="rgba(255,255,255,.35)" font-family="Barlow Condensed">${tv%1===0?tv:tv}</text>`;
+  });
+  grid += `<line x1="${PL}" y1="${PT}" x2="${PL}" y2="${PT+cH}" stroke="rgba(255,255,255,.12)" stroke-width="1"/>`;
+
+  items.forEach((d, i) => {
+    const v = vals[i];
+    const bh = d.isFuture ? 0 : Math.max((v / maxVal) * cH, v > 0 ? 3 : 0);
+    const x = r2(PL + i * slotW + (slotW - barW) / 2);
+    const y = r2(PT + cH - bh);
+    const fill = d.isToday ? color : `rgba(232,119,34,${d.isFuture ? '0.07' : '0.38'})`;
+    if (bh > 0) bars += `<rect x="${x}" y="${y}" width="${barW}" height="${r2(bh)}" rx="3" fill="${fill}"><title>${d.fullLabel||d.label}: ${r2(v)}</title></rect>`;
+    xLbls += `<text x="${r2(x*1+barW/2)}" y="${H-5}" text-anchor="middle" font-size="${n>7?'7':'9'}"
+      fill="${d.isToday ? 'rgba(232,119,34,.9)' : 'rgba(255,255,255,.3)'}"
+      font-family="Barlow Condensed" font-weight="${d.isToday?'700':'400'}">${d.label}</text>`;
+    if (v > 0 && !d.isFuture) {
+      const dv = v%1===0?v:r2(v);
+      vTxt += `<text x="${r2(x*1+barW/2)}" y="${r2(PT+cH-bh-3)}" text-anchor="middle" font-size="8.5"
+        fill="${d.isToday?color:'rgba(255,255,255,.6)'}" font-family="Barlow Condensed" font-weight="700">${dv}</text>`;
+    }
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="overflow:visible;display:block">${grid}${yLbls}${bars}${xLbls}${vTxt}</svg>`;
+}
+
+// Adapters
+function svgBars(days, getValue, color) {
+  const items = days.map(d => ({
+    label: d.label, fullLabel: d.fullLabel||d.label, value: getValue(d.dateStr),
+    isToday: d.isToday, isFuture: d.isFuture
+  }));
+  return svgBarsData(items, color);
+}
+
+function svgBarsWeeks(weeks, getValue, color) {
+  const items = weeks.map(w => ({
+    label: w.label, fullLabel: w.fullLabel, value: getValue(w.startStr, w.endStr),
+    isToday: false, isFuture: w.isFuture
+  }));
+  return svgBarsData(items, color);
+}
+
+// ── HORIZONTAL RESOURCE BAR ──────────────────────────────────────
+function resBars(items, maxVal) {
+  return items.map(({icon, label, value, unit, color}) => {
+    const pct = maxVal > 0 ? Math.min((value / maxVal) * 100, 100) : 0;
+    const display = value % 1 === 0 ? value : r2(value);
+    return `<div class="res-bar-wrap">
+      <div class="res-bar-top">
+        <div class="res-bar-lbl">${icon} ${label}</div>
+        <div><span class="res-bar-val">${display || '—'}</span><span class="res-bar-unit"> ${unit}</span></div>
+      </div>
+      <div class="res-bar-track">
+        <div class="res-bar-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DATA HELPERS ─────────────────────────────────────────────────
+function dash2Drills(start, end) {
+  return (ld.drilling||[]).filter(r =>
+    r.drillStartDate && r.drillStartDate >= start && r.drillStartDate <= end &&
+    (dash2Site==='all' || r.projectCode===dash2Site)
+  );
+}
+function dash2DOs(start, end, type) {
+  return (ld.deliveries||[]).filter(r =>
+    r.date && r.date >= start && r.date <= end &&
+    (dash2Site==='all' || r.projectCode===dash2Site) &&
+    (type ? r.doType===type : true)
+  );
+}
+
+// ── MAIN RENDER ──────────────────────────────────────────────────
+function renderDash2() {
+  const range  = dash2Range();
+  const lbl    = document.getElementById('dash-range-lbl');
+  if (lbl) lbl.textContent = range.label;
+
+  // Forward button state
+  const fwd = document.getElementById('dash-nav-fwd');
+  if (fwd) {
+    const atCurrent = (dash2Period==='week' && dash2WeekOffset===0) ||
+                      (dash2Period==='month' && dash2MonthOffset===0);
+    fwd.style.opacity = atCurrent ? '0.2' : '0.6';
+    fwd.style.cursor  = atCurrent ? 'default' : 'pointer';
+  }
+
+  const { start, end, days } = range;
+  const drills   = dash2Drills(start, end);
+  const points   = new Set(drills.map(r=>String(r.pointNo))).size;
+  const totalLen = r2(drills.reduce((s,r)=>s+(parseFloat(r.totalLength)||0),0));
+  const pPerDay  = days>0 ? r2(points/days) : 0;
+  const lPerDay  = days>0 ? r2(totalLen/days) : 0;
+  const diesel = r2(dash2DOs(start,end,'Diesel').reduce((s,r)=>s+(parseFloat(r.volume)||0),0));
+  const cement = r3(dash2DOs(start,end,'Cement').reduce((s,r)=>s+(parseFloat(r.volume)||0),0));
+  const sludge = r2(dash2DOs(start,end,'Vacuum').reduce((s,r)=>s+(parseFloat(r.volume)||0),0));
+  const dPerM  = totalLen>0 ? r2(diesel/totalLen) : null;
+  const cPerM  = totalLen>0 ? r3(cement/totalLen) : null;
+  const hasData = points>0||totalLen>0||diesel>0||cement>0||sludge>0;
+
+  if (!hasData) {
+    document.getElementById('dash-content').innerHTML = `
+      <div class="dash-empty"><div>📊</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--steel)">No data for this period</div>
+        <div style="font-size:12px;margin-top:6px;color:var(--steel)">Adjust the period or site filter</div>
+      </div>`;
+    return;
+  }
+
+  const periodNote = days > 1 ? `over ${days} days` : 'today';
+  let drillChart = '', monthWeekBars = '';
+
+  if (dash2Period === 'week') {
+    const weekDays = dash2WeekDays();
+    const pointsByDay = {}, lenByDay = {}, dieselByDay = {};
+    weekDays.forEach(d => { pointsByDay[d.dateStr]=new Set(); lenByDay[d.dateStr]=0; dieselByDay[d.dateStr]=0; });
+    drills.forEach(r => {
+      if(r.drillStartDate && pointsByDay[r.drillStartDate]!==undefined){
+        pointsByDay[r.drillStartDate].add(String(r.pointNo));
+        lenByDay[r.drillStartDate]+=(parseFloat(r.totalLength)||0);
+      }
+    });
+    dash2DOs(start,end,'Diesel').forEach(r=>{if(dieselByDay[r.date]!==undefined)dieselByDay[r.date]+=(parseFloat(r.volume)||0);});
+    drillChart = `
+      <div class="ch-card"><div class="ch-card-title">⛏ Points Drilled — by day</div>
+        ${svgBars(weekDays, ds=>pointsByDay[ds]?.size||0, '#E87722')}</div>
+      <div class="ch-card"><div class="ch-card-title">📏 Drilling Length (m) — by day</div>
+        ${svgBars(weekDays, ds=>r2(lenByDay[ds]||0), '#60A5FA')}</div>
+      <div class="ch-card"><div class="ch-card-title">⛽ Diesel Usage (L) — by day</div>
+        ${svgBars(weekDays, ds=>r2(dieselByDay[ds]||0), '#F59E0B')}</div>`;
+  } else {
+    const mWeeks = dash2MonthWeeks();
+    const ptsByWeek={}, lenByWeek={}, dieselByWeek={};
+    mWeeks.forEach(w=>{ptsByWeek[w.label]=new Set();lenByWeek[w.label]=0;dieselByWeek[w.label]=0;});
+    drills.forEach(r=>{
+      const wk=mWeeks.find(w=>r.drillStartDate>=w.startStr&&r.drillStartDate<=w.endStr);
+      if(wk){ptsByWeek[wk.label].add(String(r.pointNo));lenByWeek[wk.label]+=(parseFloat(r.totalLength)||0);}
+    });
+    (ld.deliveries||[]).filter(r=>r.date>=start&&r.date<=end&&r.doType==='Diesel'&&(dash2Site==='all'||r.projectCode===dash2Site))
+      .forEach(r=>{const wk=mWeeks.find(w=>r.date>=w.startStr&&r.date<=w.endStr);if(wk)dieselByWeek[wk.label]+=(parseFloat(r.volume)||0);});
+    drillChart = `
+      <div class="ch-card"><div class="ch-card-title">⛏ Points Drilled — by week</div>
+        ${svgBarsWeeks(mWeeks, (s,e)=>ptsByWeek[mWeeks.find(w=>w.startStr===s)?.label]?.size||0, '#E87722')}</div>
+      <div class="ch-card"><div class="ch-card-title">📏 Drilling Length (m) — by week</div>
+        ${svgBarsWeeks(mWeeks, (s,e)=>r2(lenByWeek[mWeeks.find(w=>w.startStr===s)?.label]||0), '#60A5FA')}</div>
+      <div class="ch-card"><div class="ch-card-title">⛽ Diesel Usage (L) — by week</div>
+        ${svgBarsWeeks(mWeeks, (s,e)=>r2(dieselByWeek[mWeeks.find(w=>w.startStr===s)?.label]||0), '#F59E0B')}</div>`;
+  }
+
+  document.getElementById('dash-content').innerHTML = `<div class="ch-section">
+    <div class="kpi-row">
+      <div class="kpi-cell"><div class="kpi-val" style="color:var(--k-orange)">${points}</div>
+        <div class="kpi-lbl">Points</div><div class="kpi-sub">${pPerDay} pts/day</div></div>
+      <div class="kpi-cell"><div class="kpi-val" style="color:#60A5FA">${totalLen}</div>
+        <div class="kpi-lbl">Drill Length (m)</div><div class="kpi-sub">${lPerDay} m/day</div></div>
+    </div>
+    <div class="ch-title">Drilling Activity</div>
+    ${drillChart}
+    <div class="ch-title">Resources</div>
+    <div class="ch-card"><div class="ch-card-title">📦 Resources Summary</div>
+      ${resBars([
+        {icon:'⛽',label:'Diesel',         value:diesel,unit:'L',    color:'#F59E0B'},
+        {icon:'🧱',label:'Cement Ordered', value:cement,unit:'T',    color:'#A78BFA'},
+        {icon:'🌀',label:'Sludge Removed', value:sludge,unit:'trips',color:'#34D399'},
+      ], Math.max(diesel, cement*200, sludge*20, 1))}
+    </div>
+    <div class="ch-title">Efficiency</div>
+    <div class="kpi-row">
+      <div class="kpi-cell"><div class="kpi-val" style="color:#F59E0B;font-size:${String(dPerM).length>4?'20px':'26px'}">${dPerM!==null?dPerM:'—'}</div>
+        <div class="kpi-lbl">Diesel / Drill m</div><div class="kpi-sub">L per metre</div></div>
+      <div class="kpi-cell"><div class="kpi-val" style="color:#A78BFA;font-size:${String(cPerM).length>4?'20px':'26px'}">${cPerM!==null?cPerM:'—'}</div>
+        <div class="kpi-lbl">Cement / Drill m</div><div class="kpi-sub">T per metre</div></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>`;
+}
+// ═══════════════════════════════════════════════════════════════
+// SUB-LOCATIONS
+// ═══════════════════════════════════════════════════════════════
+function renderSubLocs() {
+  const card = document.getElementById('subloc-card');
+  const addA = document.getElementById('subloc-add-area');
+  if (!card || !curProj) return;
+  if (addA) addA.style.display = isAdmin ? 'flex' : 'none';
+  const locs = curProj.subLocations || [];
+  if (!locs.length) {
+    card.innerHTML = isAdmin
+      ? '<div style="padding:14px;color:var(--steel);font-size:13px;text-align:center">No sub-locations yet — add one below</div>'
+      : '<div style="padding:14px;color:var(--steel);font-size:13px;text-align:center">No sub-locations defined</div>';
+    return;
+  }
+  card.innerHTML = locs.map(loc => `
+    <div class="subloc-row">
+      <span class="subloc-pin">📍</span>
+      <span class="subloc-name">${esc(loc.name)}</span>
+      ${isAdmin ? `<button onclick="delSubLoc('${loc.id}')" style="background:rgba(185,45,45,.2);border:none;border-radius:6px;color:#F87171;width:28px;height:28px;cursor:pointer;font-size:14px;flex-shrink:0">×</button>` : ''}
+    </div>`).join('');
+}
+
+async function addSubLoc() {
+  const inp = document.getElementById('subloc-inp');
+  const name = inp ? inp.value.trim() : '';
+  if (!name || !curProj) return;
+  if (!curProj.subLocations) curProj.subLocations = [];
+  if (curProj.subLocations.find(l => l.name.toLowerCase() === name.toLowerCase())) {
+    toast('Sub-location already exists', 'warn'); return;
+  }
+  curProj.subLocations.push({ id: uid(), name });
+  inp.value = '';
+  const idx = ld.projects.findIndex(p => String(p.id) === String(curProj.id));
+  if (idx >= 0) ld.projects[idx] = curProj;
+  sv(); qSave('projects', curProj);
+  await flushQ().catch(() => {});
+  renderSubLocs();
+  toast('Sub-location added', 'ok');
+}
+
+async function delSubLoc(id) {
+  if (!isAdmin || !curProj) return;
+  adminConfirm('Remove this sub-location?', async () => {
+    curProj.subLocations = (curProj.subLocations || []).filter(l => l.id !== id);
+    const idx = ld.projects.findIndex(p => String(p.id) === String(curProj.id));
+    if (idx >= 0) ld.projects[idx] = curProj;
+    sv(); qSave('projects', curProj);
+    await flushQ().catch(() => {});
+    renderSubLocs();
+    toast('Removed', 'ok');
+  });
+}
+
+function populateLocDrop() {
+  const sel = document.getElementById('d-loc');
+  const hint = document.getElementById('d-loc-hint');
+  if (!sel || !curProj) return;
+  const locs = curProj.subLocations || [];
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— select sub-location —</option>';
+  locs.forEach(loc => {
+    const o = document.createElement('option');
+    o.value = loc.name; o.textContent = loc.name;
+    if (loc.name === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+  if (hint) hint.style.display = (!locs.length) ? 'block' : 'none';
+}
 
 </script>
 
@@ -2537,6 +3287,52 @@ function delDO() {
       <button class="btn btn-danger" onclick="delDO()">&#128465; Delete Record</button>
     </div>
     <div style="height:24px"></div>
+  </div>
+</div>
+
+
+<!-- ════════════════ DASHBOARD SCREEN ════════════════ -->
+<div id="s-dashboard" class="screen">
+  <div class="hdr hdr-dark">
+    <button class="hdr-btn" onclick="nav('s-home')">&#8249;</button>
+    <div><div class="hdr-title">Site Dashboard</div><div class="hdr-sub" id="dash-hdr-sub">All Projects</div></div>
+    <div style="min-width:40px"></div>
+  </div>
+  <!-- Site pills -->
+  <div class="site-pills" id="dash-site-pills"></div>
+  <!-- Controls -->
+  <div class="dash-ctrl">
+    <div style="display:flex;align-items:center;gap:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden">
+      <button onclick="dashNav(-1)" style="width:36px;height:34px;border:none;background:transparent;color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">&#8249;</button>
+      <div class="dash-ctrl-lbl" id="dash-range-lbl" style="min-width:130px;text-align:center;padding:0 4px">—</div>
+      <button onclick="dashNav(1)"  id="dash-nav-fwd" style="width:36px;height:34px;border:none;background:transparent;color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'">&#8250;</button>
+    </div>
+    <div class="dash-period2">
+      <button class="dp2 active" id="d2-week"  onclick="setDash2Period('week')">Week</button>
+      <button class="dp2"        id="d2-month" onclick="setDash2Period('month')">Month</button>
+    </div>
+  </div>
+  <!-- Content -->
+  <div class="scroll" id="dash-content" style="padding-top:4px"></div>
+</div>
+
+<!-- Dashboard password overlay -->
+<div class="overlay" id="ov-dash-pw">
+  <div class="modal">
+    <div style="text-align:center;margin-bottom:6px">
+      <div style="font-size:44px;margin-bottom:10px">📊</div>
+      <div class="modal-title" style="text-align:center">Dashboard Access</div>
+      <div class="modal-body" style="text-align:center">Enter password to view the dashboard.</div>
+    </div>
+    <div class="fg"><input class="inp" id="dash-pw-inp" type="password" placeholder="Password"
+      style="text-align:center;letter-spacing:6px;font-size:22px"
+      oninput="document.getElementById('dash-pw-err').style.display='none'"
+      onkeydown="if(event.key==='Enter')doDashLogin()"></div>
+    <div id="dash-pw-err" style="color:var(--red);font-size:12px;font-weight:600;text-align:center;margin-top:-8px;margin-bottom:8px;display:none">Incorrect password</div>
+    <div class="m2">
+      <button class="btn btn-ghost" style="height:48px" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-orange" style="height:48px" onclick="doDashLogin()">Enter</button>
+    </div>
   </div>
 </div>
 
