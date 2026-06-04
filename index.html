@@ -913,7 +913,7 @@ body { color: var(--text-main); }
     <div class="mc" id="subloc-card">
       <div style="padding:14px;color:var(--steel);font-size:13px;text-align:center">—</div>
     </div>
-    <div id="subloc-add-area" style="display:none;margin-bottom:4px">
+    <div id="subloc-add-area" style="display:flex;margin-bottom:4px">
       <div style="display:flex;gap:8px">
         <input class="inp" id="subloc-inp" type="text" placeholder="e.g. Pump Room, Level B1, Zone A…" style="flex:1"
           onkeydown="if(event.key==='Enter')addSubLoc()">
@@ -1081,6 +1081,12 @@ body { color: var(--text-main); }
     <div class="fg"><label class="lbl req">Grout Stage</label>
       <input class="inp" id="rfg-stage" type="text" placeholder="e.g. Stage 1, S1, Primary" autocomplete="off" autocorrect="off" autocapitalize="off">
     </div>
+    <div class="fg"><label class="lbl">Sub-location</label>
+      <select class="sel" id="rfg-subloc"><option value="">— select sub-location —</option></select>
+      <div id="rfg-subloc-hint" style="font-size:11px;color:var(--k-orange);margin-top:5px;display:none">
+        No sub-locations set — add them on the Project screen first
+      </div>
+    </div>
     <div id="rfg-ref" style="display:none" class="ref-panel">
       <div class="ref-title">Drilling Reference</div>
       <div class="ref-name" id="rfg-ref-name"></div>
@@ -1185,6 +1191,15 @@ body { color: var(--text-main); }
         autocomplete="off" autocorrect="off" autocapitalize="off" oninput="tamLoadRef()">
       <datalist id="tam-pt-dl"></datalist>
       <div id="tam-pt-hint" style="font-size:11px;color:var(--steel);margin-top:4px;display:none">No drilling record — manual entry</div>
+    </div>
+    <div class="fg"><label class="lbl req">Grout Stage</label>
+      <input class="inp" id="tam-stage" type="text" placeholder="e.g. Stage 1, S1, Primary" autocomplete="off" autocorrect="off" autocapitalize="off">
+    </div>
+    <div class="fg"><label class="lbl">Sub-location</label>
+      <select class="sel" id="tam-subloc"><option value="">— select sub-location —</option></select>
+      <div id="tam-subloc-hint" style="font-size:11px;color:var(--k-orange);margin-top:5px;display:none">
+        No sub-locations set — add them on the Project screen first
+      </div>
     </div>
     <div class="fg2">
       <div><label class="lbl req">Grout Bottom (m)</label>
@@ -1441,7 +1456,7 @@ function updAdminUI(){
   if(sts){sts.textContent=isAdmin?'✓ Admin mode active — edit & delete enabled':'Admin login required to edit locked records.';sts.style.color=isAdmin?'var(--green)':'var(--steel)';}
   if(btn){btn.textContent=isAdmin?'SIGN OUT OF ADMIN':'ADMIN LOGIN';btn.className=isAdmin?'btn btn-danger':'btn btn-ghost';}
   const adp=document.getElementById('admin-del-proj');if(adp)adp.style.display=isAdmin?'block':'none';
-  const saa=document.getElementById('subloc-add-area');if(saa)saa.style.display=isAdmin?'flex':'none';
+
   const npb=document.getElementById('new-proj-btn');if(npb)npb.style.display=isAdmin?'block':'none';
   updDOHomeCount();
   const aps=document.getElementById('admin-proj-status');if(aps)aps.style.display=isAdmin?'block':'none';
@@ -1525,7 +1540,21 @@ async function bgSyncHome(){
   if(ss){ss.style.display='flex';ss.className='sync-strip ss-check';if(st)st.textContent='Syncing…';}
   try{
     const rows=await Promise.race([sbGet('dg_projects'),new Promise((_,r)=>setTimeout(()=>r(new Error()),7000))]);
-    if(rows&&rows.length>0){ld.projects=rows;sv();renderHome();}
+    if(rows&&rows.length>0){
+      // Merge: preserve local sub-locations if they're newer than what Supabase returned
+      rows.forEach(sbProj => {
+        const localProj = ld.projects.find(p => String(p.id) === String(sbProj.id));
+        if (localProj && (localProj.subLocations||[]).length > (sbProj.subLocations||[]).length) {
+          sbProj.subLocations = localProj.subLocations;
+        }
+      });
+      ld.projects=rows;
+      if(curProj){
+        curProj=ld.projects.find(p=>String(p.id)===String(curProj.id))||curProj;
+        renderSubLocs();
+      }
+      sv();renderHome();
+    }
     if(ss){ss.className='sync-strip ss-ok';if(st)st.textContent='Synced · '+fmtT(new Date());setTimeout(()=>{if(ss)ss.style.display='none';},3000);}
   }catch(e){
     if(ss){ss.className='sync-strip ss-fail';if(st)st.textContent='Sync failed — tap to retry';ss.style.cursor='pointer';ss.onclick=bgSyncHome;}
@@ -1553,6 +1582,27 @@ function updCounts(){
   document.getElementById('drill-count').textContent=d.length+' records';
   document.getElementById('grout-count').textContent=g.length+' records ('+rfg+' RFG · '+tam+' TAM)'+(drafts?' · '+drafts+' drafts':'');
 }
+
+// Fetch sub-locations for current project specifically
+async function syncProjectSubLocs() {
+  if (!curProj) return;
+  try {
+    const rows = await sbGet('dg_projects', 'app_id=eq.' + encodeURIComponent(String(curProj.id)));
+    if (rows && rows[0]) {
+      const fresh = rows[0];
+      const freshLocs = fresh.subLocations || [];
+      // Keep whichever has more (local write may be in flight)
+      if (freshLocs.length >= (curProj.subLocations || []).length) {
+        curProj.subLocations = freshLocs;
+        const idx = ld.projects.findIndex(p => String(p.id) === String(curProj.id));
+        if (idx >= 0) ld.projects[idx] = curProj;
+        sv();
+      }
+      renderSubLocs();
+    }
+  } catch(e) {}
+}
+
 async function openProject(id){
   curProj=ld.projects.find(p=>String(p.id)===String(id));if(!curProj)return;
   document.getElementById('proj-hdr-title').textContent=curProj.code;
@@ -1567,7 +1617,7 @@ async function openProject(id){
       sv();updCounts();
     });
   }
-  checkSync().then(ok=>{if(ok)syncProject();});
+  checkSync().then(ok=>{if(ok){syncProject();syncProjectSubLocs();}});
 }
 function updProjStatusUI(){
   if(!curProj)return;const done=curProj.status==='Completed';
@@ -1586,10 +1636,10 @@ async function setProjectStatus(s){
 async function syncProject(){
   if(!curProj||!navigator.onLine)return;const pc=curProj.code;await flushQ().catch(()=>{});
   try{
-    const[d,g,ps]=await Promise.all([sbGet('dg_drilling','project_code=eq.'+encodeURIComponent(pc)),sbGet('dg_grouting','project_code=eq.'+encodeURIComponent(pc)),sbGet('dg_projects')]);
+    const[d,g]=await Promise.all([sbGet('dg_drilling','project_code=eq.'+encodeURIComponent(pc)),sbGet('dg_grouting','project_code=eq.'+encodeURIComponent(pc))]);
     ld.drilling=ld.drilling.filter(r=>r.projectCode!==pc);ld.drilling.push(...d);
     ld.grouting=ld.grouting.filter(r=>r.projectCode!==pc);ld.grouting.push(...g);
-    if(ps.length)ld.projects=ps;sv();updCounts();renderDrillList();renderGroutList();
+    sv();updCounts();renderDrillList();renderGroutList();
     document.getElementById('last-sync').textContent='Last sync: '+fmtT(new Date());
     setPill('ok','Synced · '+fmtT(new Date()));toast('Synced','ok');
   }catch(e){setPill('fail','Sync failed');toast('Sync failed','err');}
@@ -1659,17 +1709,18 @@ function renderDrillList(){
 }
 function setDFields(lk){['d-op','d-pt','d-loc','d-date','d-gl','d-sp','d-nsp'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.getElementById('d-ori').disabled=lk;document.querySelectorAll('#strata-rows input,#strata-rows select').forEach(e=>e.disabled=lk);const a=document.getElementById('strata-add');if(a)a.style.display=lk?'none':'block';}
 function openDrillForm(id){
-  populateLocDrop();
   editDId=id;const lb=document.getElementById('d-lk-banner');
   if(id){const r=ld.drilling.find(d=>String(d.id)===String(id));if(!r)return;
     document.getElementById('dform-title').textContent='Drilling Record';
     ['d-op','d-pt','d-loc','d-date','d-gl','d-sp','d-nsp'].forEach((fid,i)=>{document.getElementById(fid).value=[r.operator||opName||'',String(r.pointNo||''),r.location||'',r.drillStartDate||'',r.groundLevel||'',r.sleevePipeLength||'',r.nonSleevePipeLength||''][i];});
     document.getElementById('d-ori').value=r.orientation||'Vertical';
+    populateLocDrop(r.location||'');
     loadStrata(r.strata);const isLk=(r.isLocked||r.groutStatus==='Submitted');const lk=isLk&&!isAdmin;if(lb)lb.style.display=isLk&&!isAdmin?'flex':'none';setDFields(lk);
   }else{
     document.getElementById('dform-title').textContent='New Drilling Record';
     ['d-pt','d-loc','d-gl','d-sp','d-nsp'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('d-op').value=opName;document.getElementById('d-date').value=today();document.getElementById('d-ori').value='Vertical';
+    populateLocDrop('');
     loadStrata(null);if(lb)lb.style.display='none';setDFields(false);
   }
   updFormAdminBtns();nav('s-drill-form');
@@ -1728,12 +1779,12 @@ function getLuRows(){return Array.from(document.querySelectorAll('#lu-rows tr'))
 function addMixRow(d){const tb=document.getElementById('rfg-mix-rows');d=d||{stage:'1',type:'OPC',wc:'',vol:'',pvl:''};const tr=document.createElement('tr');tr.innerHTML=`<td><input class="mx" type="number" min="1" value="${d.stage}" oninput="rfgCalc()" style="width:40px;text-align:center" title="Mix No."></td><td><select class="mxs" onchange="mColor(this);rfgCalc()" style="width:50px"><option ${d.type==='OPC'?'selected':''}>OPC</option><option ${d.type==='MFC'?'selected':''}>MFC</option></select></td><td><input class="mx" type="number" step="0.1" value="${d.wc||''}" placeholder="1.5" oninput="rfgCalc()" style="width:58px"></td><td><input class="mx" type="number" step="1" value="${d.vol||''}" placeholder="L" oninput="rfgCalc()" style="width:66px"></td><td><select class="mxs" style="width:42px"><option value="">—</option><option ${d.pvl==='P'?'selected':''}>P</option><option ${d.pvl==='V'?'selected':''}>V</option><option ${d.pvl==='L'?'selected':''}>L</option></select></td><td><button class="mxdel" onclick="this.closest('tr').remove();rfgCalc()">×</button></td>`;tb.appendChild(tr);mColor(tr.querySelector('select'));rfgCalc();}
 function mColor(s){s.style.background=s.value==='OPC'?'var(--lgreen)':'var(--lamber)';s.style.color=s.value==='OPC'?'var(--green)':'var(--amber)';}
 function getMixRows(){return Array.from(document.querySelectorAll('#rfg-mix-rows tr')).map(tr=>{const i=tr.querySelectorAll('input,select');return{stage:i[0].value,type:i[1].value,wc:i[2].value,vol:i[3].value,pvl:i[4].value};});}
-function setRFGFields(lk){['rfg-op','rfg-pt','rfg-stage','rfg-bot','rfg-top','rfg-vpm','rfg-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.querySelectorAll('#rfg-mix-rows input,#rfg-mix-rows select,#lu-rows input,#lu-s,#lu-m').forEach(e=>e.disabled=lk);const a=document.getElementById('rfg-mix-add');if(a)a.style.display=lk?'none':'block';}
+function setRFGFields(lk){['rfg-op','rfg-pt','rfg-stage','rfg-subloc','rfg-bot','rfg-top','rfg-vpm','rfg-rem'].forEach(id=>{const e=document.getElementById(id);if(e)e.disabled=lk;});document.querySelectorAll('#rfg-mix-rows input,#rfg-mix-rows select,#lu-rows input,#lu-s,#lu-m').forEach(e=>e.disabled=lk);const a=document.getElementById('rfg-mix-add');if(a)a.style.display=lk?'none':'block';}
 function openRFGForm(id){
   editRId=id;rfgPopPt();document.getElementById('rfg-mix-rows').innerHTML='';const lb=document.getElementById('rfg-lk-banner');
   if(id){const r=ld.grouting.find(g=>String(g.id)===String(id));if(!r)return;
     document.getElementById('rfg-hdr-title').textContent=r.isLocked?'RFG Record (Locked)':'RFG Record';
-    document.getElementById('rfg-op').value=r.operator||opName||'';document.getElementById('rfg-pt').value=String(r.pointNo||'');document.getElementById('rfg-stage').value=r.groutStage||'';rfgLoadRef();
+    document.getElementById('rfg-op').value=r.operator||opName||'';document.getElementById('rfg-pt').value=String(r.pointNo||'');document.getElementById('rfg-stage').value=r.groutStage||'';populateGroutLocDrop('rfg',r.location||'');rfgLoadRef();
     document.getElementById('rfg-bot').value=r.groutBottom||'';document.getElementById('rfg-top').value=r.groutTop||'';document.getElementById('rfg-vpm').value=r.volPerM||'';document.getElementById('rfg-rem').value=r.remarks||'';
     (r.rfgMixes||[]).forEach(m=>addMixRow(m));lugType=r.lugeonType||'Simple';setLuType(lugType);if(r.lugeonStages&&r.lugeonStages.length)buildLuRows(lugType,r.lugeonStages);
     const isLk=(r.isLocked||r.groutStatus==='Submitted');const lk=isLk&&!isAdmin;if(lb)lb.style.display=isLk&&!isAdmin?'flex':'none';setRFGFields(lk);
@@ -1742,6 +1793,7 @@ function openRFGForm(id){
   }else{
     document.getElementById('rfg-hdr-title').textContent='New RFG Record';
     document.getElementById('rfg-stage').value='';
+    populateGroutLocDrop('rfg');
     ['rfg-bot','rfg-top','rfg-vpm','rfg-rem'].forEach(i=>{document.getElementById(i).value='';document.getElementById(i).disabled=false;});
     document.getElementById('rfg-op').value=opName;document.getElementById('rfg-op').disabled=false;
     document.getElementById('rfg-pt').value='';document.getElementById('rfg-pt').disabled=false;
@@ -1815,12 +1867,15 @@ function openTAMForm(id){
   editTId=id;tamPopPt();document.getElementById('tam-rows').innerHTML='';const lb=document.getElementById('tam-lk-banner');
   if(id){const r=ld.grouting.find(g=>String(g.id)===String(id));if(!r)return;
     document.getElementById('tam-hdr-title').textContent=r.isLocked?'TAM Record (Locked)':'TAM Record';
-    document.getElementById('tam-op').value=r.operator||opName||'';document.getElementById('tam-pt').value=String(r.pointNo||'');tamLoadRef();document.getElementById('tam-bot').value=r.groutBottom||'';document.getElementById('tam-top').value=r.groutTop||'';document.getElementById('tam-lps').value=r.lengthPerStage||'';document.getElementById('tam-vpm').value=r.tamVolPerM||'';tamUpdCalc();
+    document.getElementById('tam-op').value=r.operator||opName||'';document.getElementById('tam-pt').value=String(r.pointNo||'');const tamStageEl=document.getElementById('tam-stage');if(tamStageEl)tamStageEl.value=r.groutStage||'';populateGroutLocDrop('tam',r.location||'');tamLoadRef();document.getElementById('tam-bot').value=r.groutBottom||'';document.getElementById('tam-top').value=r.groutTop||'';document.getElementById('tam-lps').value=r.lengthPerStage||'';document.getElementById('tam-vpm').value=r.tamVolPerM||'';tamUpdCalc();
     setTAMPass(r.tamPass||1);(r.tamStages||[]).forEach(s=>addTAMRow(s));
     const isLk=(r.isLocked||r.groutStatus==='Submitted');const lk=isLk&&!isAdmin;if(lb)lb.style.display=isLk&&!isAdmin?'flex':'none';setTAMFields(lk);
     const tamIsLk=(r.isLocked||r.groutStatus==='Submitted');document.getElementById('tam-form-btns').style.display=(tamIsLk&&!isAdmin)?'none':'block';document.getElementById('tam-admin-btns').style.display=isAdmin?'block':'none';
   }else{
     document.getElementById('tam-hdr-title').textContent='New TAM Record';
+    populateGroutLocDrop('tam');
+    const tsEl=document.getElementById('tam-stage');if(tsEl){tsEl.value='';tsEl.disabled=false;}
+    const tsEl2=document.getElementById('tam-subloc');if(tsEl2){tsEl2.value='';tsEl2.disabled=false;}
     ['tam-bot','tam-top','tam-lps','tam-vpm'].forEach(i=>{const e=document.getElementById(i);if(e){e.value='';e.disabled=false;}});
     document.getElementById('tam-vollimit').textContent='—';
     document.getElementById('tam-op').value=opName;document.getElementById('tam-op').disabled=false;document.getElementById('tam-pt').value='';document.getElementById('tam-pt').disabled=false;
@@ -2142,6 +2197,7 @@ function genRFGSummary() {
 
   // Location from drilling reference
   const dRef  = document.getElementById('rfg-ref-name')?.textContent || '';
+  const rfgSub = document.getElementById('rfg-subloc')?.value || '';
 
   // Mix stages
   const mixes = getMixRows().filter(m => m.vol);
@@ -2169,6 +2225,7 @@ function genRFGSummary() {
     `📍 Project: ${proj}`,
     `🔹 Point No: ${pt}`,
     document.getElementById('rfg-stage')?.value ? `🔢 Grout Stage: ${document.getElementById('rfg-stage')?.value}` : '',
+    rfgSub ? `📍 Sub-location: ${rfgSub}` : '',
     dRef ? `📌 ${dRef}` : '',
     '',
     '*💧 GROUTING DATA*',
@@ -2207,6 +2264,7 @@ function genTAMSummary() {
   const vpm  = val('tam-vpm');
   const proj = curProj ? curProj.code : '—';
   const dRef = document.getElementById('tam-ref-name')?.textContent || '';
+  const tamSub = document.getElementById('tam-subloc')?.value || '';
   const cp   = document.getElementById('tam-cp')?.textContent || '—';
   const cs   = document.getElementById('tam-cs')?.textContent || '—';
   const cv   = document.getElementById('tam-cv')?.textContent || '—';
@@ -2226,6 +2284,7 @@ function genTAMSummary() {
     '──────────────────────',
     `📍 Project: ${proj}`,
     `🔹 Point No: ${pt}`,
+    tamSub ? `📍 Sub-location: ${tamSub}` : '',
     dRef ? `📌 ${dRef}` : '',
     '',
     `*🔧 TAM DATA (${cp})*`,
@@ -2303,8 +2362,8 @@ function hookLiveUpdate(fields, generator) {
 // Hook after a short delay to ensure DOM is ready
 setTimeout(() => {
   hookLiveUpdate(['d-pt','d-loc','d-date','d-gl','d-ori','d-sp','d-nsp','d-op'], genDrillSummary);
-  hookLiveUpdate(['rfg-pt','rfg-stage','rfg-bot','rfg-top','rfg-vpm','rfg-rem','rfg-op'], genRFGSummary);
-  hookLiveUpdate(['tam-pt','tam-bot','tam-top','tam-lps','tam-vpm','tam-op'], genTAMSummary);
+  hookLiveUpdate(['rfg-pt','rfg-stage','rfg-subloc','rfg-bot','rfg-top','rfg-vpm','rfg-rem','rfg-op'], genRFGSummary);
+  hookLiveUpdate(['tam-pt','tam-stage','tam-subloc','tam-bot','tam-top','tam-lps','tam-vpm','tam-op'], genTAMSummary);
   // Also hook strata and mix table changes
   document.getElementById('strata-rows')?.addEventListener('input', genDrillSummary);
   document.getElementById('strata-rows')?.addEventListener('change', genDrillSummary);
@@ -3104,12 +3163,10 @@ function renderSubLocs() {
   const card = document.getElementById('subloc-card');
   const addA = document.getElementById('subloc-add-area');
   if (!card || !curProj) return;
-  if (addA) addA.style.display = isAdmin ? 'flex' : 'none';
+  if (addA) addA.style.display = 'flex';
   const locs = curProj.subLocations || [];
   if (!locs.length) {
-    card.innerHTML = isAdmin
-      ? '<div style="padding:14px;color:var(--steel);font-size:13px;text-align:center">No sub-locations yet — add one below</div>'
-      : '<div style="padding:14px;color:var(--steel);font-size:13px;text-align:center">No sub-locations defined</div>';
+    card.innerHTML = '<div style="padding:14px;color:var(--steel);font-size:13px;text-align:center">No sub-locations yet — add one below</div>';
     return;
   }
   card.innerHTML = locs.map(loc => `
@@ -3128,35 +3185,54 @@ async function addSubLoc() {
   if (curProj.subLocations.find(l => l.name.toLowerCase() === name.toLowerCase())) {
     toast('Sub-location already exists', 'warn'); return;
   }
-  curProj.subLocations.push({ id: uid(), name });
+  // Always create a new array so reference changes are detected
+  curProj.subLocations = [...curProj.subLocations, { id: uid(), name }];
+  curProj.appModified = new Date().toISOString();
   inp.value = '';
+  // Update ld.projects with the latest curProj
   const idx = ld.projects.findIndex(p => String(p.id) === String(curProj.id));
-  if (idx >= 0) ld.projects[idx] = curProj;
-  sv(); qSave('projects', curProj);
-  await flushQ().catch(() => {});
+  if (idx >= 0) ld.projects[idx] = curProj; else ld.projects.push(curProj);
+  sv();
   renderSubLocs();
-  toast('Sub-location added', 'ok');
+  toast('Sub-location saved', 'ok');
+  // Direct upsert — don't rely on queue
+  try {
+    await sbUpsert('dg_projects', curProj);
+    // Refresh curProj from local (already updated) — no Supabase re-read needed
+    const idx2 = ld.projects.findIndex(p => String(p.id) === String(curProj.id));
+    if (idx2 >= 0) curProj = ld.projects[idx2];
+    renderSubLocs();
+    toast('Synced ✓', 'ok');
+  } catch(e) {
+    qSave('projects', curProj);
+    toast('Saved locally — will sync later', 'warn');
+  }
 }
 
 async function delSubLoc(id) {
   if (!isAdmin || !curProj) return;
   adminConfirm('Remove this sub-location?', async () => {
     curProj.subLocations = (curProj.subLocations || []).filter(l => l.id !== id);
+    curProj.appModified = new Date().toISOString();
     const idx = ld.projects.findIndex(p => String(p.id) === String(curProj.id));
     if (idx >= 0) ld.projects[idx] = curProj;
-    sv(); qSave('projects', curProj);
-    await flushQ().catch(() => {});
+    sv();
     renderSubLocs();
     toast('Removed', 'ok');
+    try {
+      await sbUpsert('dg_projects', curProj);
+    } catch(e) {
+      qSave('projects', curProj);
+    }
   });
 }
 
-function populateLocDrop() {
-  const sel = document.getElementById('d-loc');
-  const hint = document.getElementById('d-loc-hint');
+function populateGroutLocDrop(prefix, savedVal) {
+  const sel = document.getElementById(prefix+'-subloc');
+  const hint = document.getElementById(prefix+'-subloc-hint');
   if (!sel || !curProj) return;
   const locs = curProj.subLocations || [];
-  const cur = sel.value;
+  const cur = savedVal !== undefined ? savedVal : sel.value;
   sel.innerHTML = '<option value="">— select sub-location —</option>';
   locs.forEach(loc => {
     const o = document.createElement('option');
@@ -3164,7 +3240,37 @@ function populateLocDrop() {
     if (loc.name === cur) o.selected = true;
     sel.appendChild(o);
   });
-  if (hint) hint.style.display = (!locs.length) ? 'block' : 'none';
+  // If saved value not in list, add it so it shows correctly
+  if (cur && cur !== '' && !locs.find(l => l.name === cur)) {
+    const o = document.createElement('option');
+    o.value = cur; o.textContent = cur;
+    o.selected = true;
+    sel.appendChild(o);
+  }
+  if (hint) hint.style.display = (!locs.length && !cur) ? 'block' : 'none';
+}
+
+function populateLocDrop(savedVal) {
+  const sel = document.getElementById('d-loc');
+  const hint = document.getElementById('d-loc-hint');
+  if (!sel || !curProj) return;
+  const locs = curProj.subLocations || [];
+  const cur = savedVal !== undefined ? savedVal : sel.value;
+  sel.innerHTML = '<option value="">— select sub-location —</option>';
+  locs.forEach(loc => {
+    const o = document.createElement('option');
+    o.value = loc.name; o.textContent = loc.name;
+    if (loc.name === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+  // If saved value not in list, add it so it shows correctly
+  if (cur && cur !== '' && !locs.find(l => l.name === cur)) {
+    const o = document.createElement('option');
+    o.value = cur; o.textContent = cur;
+    o.selected = true;
+    sel.appendChild(o);
+  }
+  if (hint) hint.style.display = (!locs.length && !cur) ? 'block' : 'none';
 }
 
 </script>
