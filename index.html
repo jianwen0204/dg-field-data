@@ -615,6 +615,42 @@ body { color: var(--text-main); }
 .wa-copy-btn{margin-top:10px;width:100%;height:42px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:10px;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px;position:relative;z-index:1}
 .wa-copy-btn:active{background:rgba(255,255,255,.25);transform:scale(.98)}
 .wa-copy-btn.copied{background:rgba(37,211,102,.3);border-color:rgba(37,211,102,.5)}
+
+/* ── DO Type buttons ─────────────────────────────────── */
+.do-type-btn{
+  height:48px;border-radius:10px;
+  background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.08);
+  color:var(--slate);
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.03em;cursor:pointer;transition:all .15s;
+}
+.do-type-btn.active{
+  background:linear-gradient(135deg,var(--k-orange),#C55C0A);
+  border-color:var(--k-orange);color:#fff;
+  box-shadow:0 3px 14px rgba(232,119,34,.4);
+}
+.do-type-btn:active{transform:scale(.96);}
+
+/* ── DO badge colors ────────────────────────────────── */
+.b-diesel  {background:rgba(251,191,36,.15);color:#F59E0B;}
+.b-vacuum  {background:rgba(96,165,250,.15);color:#60A5FA;}
+.b-soil    {background:rgba(161,124,85,.15);color:#A17C55;}
+.b-concrete{background:rgba(148,163,184,.15);color:#94A3B8;}
+.b-cement  {background:rgba(167,139,250,.15);color:#A78BFA;}
+.b-steel   {background:rgba(52,211,153,.15);color:#34D399;}
+
+/* ── DO totals chips ────────────────────────────────── */
+.do-chip{
+  flex-shrink:0;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;padding:6px 12px;text-align:center;min-width:72px;
+}
+.do-chip-lbl{font-family:'Barlow Condensed',sans-serif;font-size:9px;font-weight:700;color:var(--steel);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.do-chip-val{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff}
+.do-chip-unit{font-size:9px;color:var(--steel);margin-top:1px}
+
 </style>
 </head>
 <body>
@@ -645,7 +681,21 @@ body { color: var(--text-main); }
     <div id="proj-active"></div>
     <div class="slbl">Completed</div>
     <div id="proj-done"></div>
-    <div style="margin-top:8px"><button class="btn btn-ghost" onclick="openAddProject()">+ New Project</button></div>
+    <!-- DO quick entry card (admin only) -->
+    <div id="do-home-card" style="margin-top:4px">
+      <div class="slbl" style="margin-top:18px">Delivery Orders</div>
+      <div class="mc" style="cursor:pointer" onclick="openDOList()">
+        <div class="mi" style="border:none">
+          <div class="mi-ico" style="background:rgba(251,191,36,.12)">📦</div>
+          <div style="flex:1">
+            <div class="mi-lbl">DO Log</div>
+            <div class="mi-sub" id="do-home-count">Daily delivery order entries</div>
+          </div>
+          <div class="mi-arr">›</div>
+        </div>
+      </div>
+    </div>
+    <div id="new-proj-btn" style="margin-top:8px;display:none"><button class="btn btn-orange" onclick="openAddProject()">+ New Project</button></div>
   </div>
 </div>
 
@@ -1146,7 +1196,8 @@ const ADMIN_PW='Keller2026';
 let ld,sq,opName,curProj,isAdmin=false,syncOk=false,syncDismissed=false;
 let editDId=null,editRId=null,editTId=null,lugType='Simple',tamPass=1;
 let _subCb=null,_delCb=null;
-try{ld=JSON.parse(localStorage.getItem('dg_data')||'{"projects":[],"drilling":[],"grouting":[]}');sq=JSON.parse(localStorage.getItem('dg_q')||'[]');opName=localStorage.getItem('dg_op')||'';isAdmin=sessionStorage.getItem('dg_admin')==='1';}catch(e){ld={projects:[],drilling:[],grouting:[]};sq=[];opName='';}
+try{ld=JSON.parse(localStorage.getItem('dg_data')||'{"projects":[],"drilling":[],"grouting":[],"deliveries":[]}');
+if(!ld.deliveries)ld.deliveries=[];sq=JSON.parse(localStorage.getItem('dg_q')||'[]');opName=localStorage.getItem('dg_op')||'';isAdmin=sessionStorage.getItem('dg_admin')==='1';}catch(e){ld={projects:[],drilling:[],grouting:[]};sq=[];opName='';}
 const sv=()=>{try{localStorage.setItem('dg_data',JSON.stringify(ld));}catch(e){}};
 const svq=()=>{try{localStorage.setItem('dg_q',JSON.stringify(sq));}catch(e){}};
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2);
@@ -1185,6 +1236,8 @@ function updAdminUI(){
   if(sts){sts.textContent=isAdmin?'✓ Admin mode active — edit & delete enabled':'Admin login required to edit locked records.';sts.style.color=isAdmin?'var(--green)':'var(--steel)';}
   if(btn){btn.textContent=isAdmin?'SIGN OUT OF ADMIN':'ADMIN LOGIN';btn.className=isAdmin?'btn btn-danger':'btn btn-ghost';}
   const adp=document.getElementById('admin-del-proj');if(adp)adp.style.display=isAdmin?'block':'none';
+  const npb=document.getElementById('new-proj-btn');if(npb)npb.style.display=isAdmin?'block':'none';
+  updDOHomeCount();
   const aps=document.getElementById('admin-proj-status');if(aps)aps.style.display=isAdmin?'block':'none';
   updFormAdminBtns();
 }
@@ -2054,6 +2107,316 @@ setTimeout(() => {
   ['tam-bot','tam-top','tam-lps','tam-vpm'].forEach(id=>{const e=document.getElementById(id);if(e){e.addEventListener('input',tamUpdCalc);}});
 }, 800);
 
+
+// ═══════════════════════════════════════════════════════════════
+// DELIVERY ORDER MODULE
+// ═══════════════════════════════════════════════════════════════
+const DO_TYPES = {
+  Diesel:   { unit:'L',     label:'Litres',    icon:'⛽', cls:'b-diesel'  },
+  Vacuum:   { unit:'trips', label:'Trips',     icon:'🌀', cls:'b-vacuum'  },
+  Soil:     { unit:'m³',    label:'Cubic m',   icon:'🪨', cls:'b-soil'    },
+  Concrete: { unit:'m³',    label:'Cubic m',   icon:'🏗', cls:'b-concrete'},
+  Cement:   { unit:'T',     label:'Tonnes',    icon:'🧱', cls:'b-cement'  },
+  Steel:    { unit:'pcs',   label:'Pieces',    icon:'🔩', cls:'b-steel'   },
+};
+
+let curDOType = 'Diesel';
+let curInOut  = 'IN';
+let editDOId  = null;
+
+// ── Ensure deliveries array exists ──────────────────────────────
+if (!ld.deliveries) { ld.deliveries = []; sv(); }
+
+// ── Open DO list for current project ────────────────────────────
+function populateDOSiteDrop() {
+  const sel = document.getElementById('do-site');
+  if (!sel) return;
+  const active = (ld.projects || []).filter(p => p.status !== 'Completed');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— select project —</option>';
+  active.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.code; o.textContent = p.code + ' — ' + p.name;
+    if (p.code === cur) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+function updDOHomeCount() {
+  const el = document.getElementById('do-home-count');
+  if (!el) return;
+  const total = (ld.deliveries || []).length;
+  const today_str = new Date().toISOString().slice(0,10);
+  const todayCount = (ld.deliveries || []).filter(d => d.date === today_str).length;
+  el.textContent = total ? total + ' total · ' + todayCount + ' today' : 'No entries yet';
+}
+
+function openDOList() {
+  document.getElementById('do-list-sub').textContent = 'All Projects';
+  const fab = document.getElementById('do-fab');
+  if (fab) fab.style.display = 'flex';
+  populateDOSiteDrop();
+  const mf = document.getElementById('do-filter-month');
+  if (mf && !mf.value) mf.value = new Date().toISOString().slice(0, 7);
+  renderDOList();
+  renderDOTotals();
+  nav('s-do-list');
+}
+
+// ── Render totals strip ──────────────────────────────────────────
+function renderDOTotals() {
+  const recs = ld.deliveries || [];
+  const strip = document.getElementById('do-totals-strip');
+  if (!strip) return;
+  const totals = {};
+  Object.keys(DO_TYPES).forEach(t => totals[t] = 0);
+  let steelBal = 0;
+  recs.forEach(d => {
+    const v = parseFloat(d.volume) || 0;
+    if (d.doType === 'Steel') {
+      steelBal += d.inOut === 'OUT' ? -v : v;
+      totals.Steel += v;
+    } else {
+      totals[d.doType] = (totals[d.doType] || 0) + v;
+    }
+  });
+  strip.innerHTML = Object.entries(DO_TYPES).map(([type, cfg]) => {
+    const val = type === 'Steel' ? steelBal : totals[type];
+    const display = val % 1 === 0 ? val : parseFloat(val.toFixed(2));
+    return `<div class="do-chip">
+      <div class="do-chip-lbl">${cfg.icon} ${type}</div>
+      <div class="do-chip-val">${display || '—'}</div>
+      <div class="do-chip-unit">${val ? cfg.unit : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Render DO list ───────────────────────────────────────────────
+function renderDOList() {
+  const typeF  = document.getElementById('do-filter-type')?.value || '';
+  const monthF = document.getElementById('do-filter-month')?.value || '';
+  let recs = ld.deliveries;
+  if (typeF)  recs = recs.filter(d => d.doType === typeF);
+  if (monthF) recs = recs.filter(d => (d.date || '').startsWith(monthF));
+  recs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  const el = document.getElementById('do-list');
+  if (!recs.length) {
+    el.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--steel)">
+      <div style="font-size:40px;margin-bottom:12px">📦</div>
+      <div style="font-family:Barlow Condensed,sans-serif;font-size:18px;font-weight:700">No delivery orders</div>
+      <div style="font-size:12px;margin-top:6px">${isAdmin ? 'Tap + to add a new DO' : 'No records for this filter'}</div>
+    </div>`;
+    return;
+  }
+  // Group by date
+  const byDate = {};
+  recs.forEach(r => { const d = r.date || 'Unknown date'; if (!byDate[d]) byDate[d] = []; byDate[d].push(r); });
+  let html = '';
+  Object.keys(byDate).sort((a,b) => b.localeCompare(a)).forEach(date => {
+    const cfg = DO_TYPES;
+    html += `<div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;color:var(--steel);padding:10px 14px 5px;letter-spacing:.12em;text-transform:uppercase">${fmtD(date)}</div>
+    <div class="card" style="border-radius:0;border:none;margin:0">`;
+    byDate[date].forEach(r => {
+      const t = cfg[r.doType] || {};
+      const vol = r.doType === 'Steel' ? (r.inOut === 'OUT' ? '-' : '+') + r.volume + ' ' + t.unit : (r.volume || '—') + ' ' + t.unit;
+      const volColor = r.doType === 'Steel' ? (r.inOut === 'OUT' ? 'var(--red)' : 'var(--green)') : 'var(--k-orange)';
+      html += `<div class="row ${r.doType === 'Steel' && r.inOut === 'OUT' ? 'row-locked' : 'row-draft'}" onclick="${isAdmin ? `openDOForm('${r.id}')` : 'void(0)'}">
+        <div class="rb">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+            <span style="font-size:15px">${t.icon || '📦'}</span>
+            <span class="rt">${esc(r.siteName || '—')} — ${esc(r.description || r.doType)}</span>
+            <span class="badge ${t.cls || ''}" style="font-size:9px">${r.doType}</span>
+            ${r.isLocked ? '<span class="badge b-locked" style="font-size:9px">Locked</span>' : ''}
+          </div>
+          <div class="rm">${esc(r.company || '—')} ${r.doNumber ? '· DO: '+r.doNumber : ''} ${r.vehicleNum ? '· '+r.vehicleNum : ''}</div>
+          ${r.remarks ? `<div class="rd">${esc(r.remarks)}</div>` : ''}
+        </div>
+        <div style="text-align:right;flex-shrink:0;padding-left:10px">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:${volColor}">${vol}</div>
+          ${r.doType === 'Steel' ? `<div style="font-size:10px;color:var(--steel)">Bal: ${r.balance || '—'}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+// ── DO Form ──────────────────────────────────────────────────────
+function setDOFormLocked(lk) {
+  ['do-date','do-site','do-vol','do-company','do-num','do-desc','do-remarks','do-vehicle','do-material'].forEach(id => {
+    const e = document.getElementById(id); if (e) e.disabled = lk;
+  });
+  document.querySelectorAll('.do-type-btn').forEach(b => b.disabled = lk);
+  const ib = document.getElementById('do-in-btn');  if(ib)  ib.disabled = lk;
+  const ob = document.getElementById('do-out-btn');  if(ob)  ob.disabled = lk;
+  const saveBtn = document.getElementById('do-save-btn');
+  if (saveBtn) saveBtn.style.display = lk ? 'none' : 'block';
+}
+
+function openDOForm(id) {
+  editDOId = id;
+  populateDOSiteDrop();
+  const del = document.getElementById('do-admin-del');
+  const lkBanner = document.getElementById('do-lk-banner');
+  if (id) {
+    const r = ld.deliveries.find(d => String(d.id) === String(id));
+    const locked = r?.isLocked && !isAdmin;
+    document.getElementById('do-form-title').textContent = r?.isLocked ? 'Delivery Order' : 'Edit Delivery Order';
+    if (lkBanner) lkBanner.style.display = locked ? 'flex' : 'none';
+    if (del) del.style.display = (isAdmin) ? 'block' : 'none';
+    setDOFormLocked(locked);
+  } else {
+    document.getElementById('do-form-title').textContent = 'New Delivery Order';
+    if (lkBanner) lkBanner.style.display = 'none';
+    if (del) del.style.display = 'none';
+    setDOFormLocked(false);
+  }
+
+  // Populate company datalist from existing
+  const companies = [...new Set(ld.deliveries.filter(d => d.projectCode === curProj?.code).map(d => d.company).filter(Boolean))];
+  const cdl = document.getElementById('do-company-dl');
+  if (cdl) { cdl.innerHTML = ''; companies.forEach(c => { const o = document.createElement('option'); o.value = c; cdl.appendChild(o); }); }
+
+  if (id) {
+    const r = ld.deliveries.find(d => String(d.id) === String(id));
+    if (!r) return;
+    setDOType(r.doType || 'Diesel');
+    document.getElementById('do-date').value    = r.date || '';
+    document.getElementById('do-site').value    = r.siteName || '';
+    document.getElementById('do-desc').value    = r.description || '';
+    document.getElementById('do-vol').value     = r.volume || '';
+    document.getElementById('do-company').value = r.company || '';
+    document.getElementById('do-num').value     = r.doNumber || '';
+    document.getElementById('do-remarks').value = r.remarks || '';
+    if (r.doType === 'Concrete') {
+      document.getElementById('do-vehicle').value  = r.vehicleNum || '';
+      document.getElementById('do-material').value = r.material || '';
+    }
+    if (r.doType === 'Steel') { setInOut(r.inOut || 'IN'); doCalcBalance(r.volume, r.inOut); }
+  } else {
+    setDOType('Diesel');
+    document.getElementById('do-date').value    = today();
+    document.getElementById('do-site').value    = '';
+    document.getElementById('do-desc').value    = '';
+    document.getElementById('do-vol').value     = '';
+    document.getElementById('do-company').value = '';
+    document.getElementById('do-num').value     = '';
+    document.getElementById('do-remarks').value = '';
+    document.getElementById('do-vehicle').value  = '';
+    document.getElementById('do-material').value = '';
+    curInOut = 'IN'; setInOut('IN');
+    document.getElementById('do-balance-display').textContent = '—';
+  }
+  nav('s-do-form');
+}
+
+function setDOType(type) {
+  curDOType = type;
+  const cfg = DO_TYPES[type] || {};
+  // Update buttons
+  document.querySelectorAll('.do-type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.type === type);
+  });
+  // Unit display
+  const ud = document.getElementById('do-unit-display');
+  if (ud) ud.textContent = cfg.unit || '—';
+  // Concrete fields
+  const cf = document.getElementById('do-concrete-fields');
+  if (cf) cf.style.display = type === 'Concrete' ? 'block' : 'none';
+  // Steel fields
+  const sf = document.getElementById('do-steel-fields');
+  if (sf) sf.style.display = type === 'Steel' ? 'block' : 'none';
+  // Default description
+  const dd = document.getElementById('do-desc');
+  if (dd && !dd.value) dd.value = { Diesel:'Diesel', Vacuum:'Slurry Disposal', Soil:'Soil Disposal', Concrete:'Cement Mortar', Cement:'OPC', Steel:'Steel plates' }[type] || '';
+  // Vol label
+  const vl = document.getElementById('do-vol-lbl');
+  if (vl) vl.textContent = type === 'Steel' ? 'Quantity (pcs)' : 'Volume';
+}
+
+function setInOut(val) {
+  curInOut = val;
+  const ib = document.getElementById('do-in-btn');
+  const ob = document.getElementById('do-out-btn');
+  if (ib) { ib.style.background = val==='IN'?'var(--k-navy)':'rgba(255,255,255,.05)'; ib.style.color = val==='IN'?'#fff':'var(--slate)'; ib.style.border = val==='IN'?'none':'1.5px solid rgba(255,255,255,.1)'; }
+  if (ob) { ob.style.background = val==='OUT'?'var(--red)':'rgba(255,255,255,.05)'; ob.style.color = val==='OUT'?'#fff':'var(--slate)'; ob.style.border = val==='OUT'?'none':'1.5px solid rgba(255,255,255,.1)'; }
+  const qty = parseFloat(document.getElementById('do-vol')?.value) || 0;
+  doCalcBalance(qty, val);
+}
+
+function doCalcBalance(qty, dir) {
+  if (!curProj) return;
+  const existing = ld.deliveries.filter(d => d.projectCode === curProj.code && d.doType === 'Steel' && String(d.id) !== String(editDOId || ''));
+  let bal = existing.reduce((s, d) => s + (d.inOut === 'OUT' ? -(parseFloat(d.volume)||0) : (parseFloat(d.volume)||0)), 0);
+  bal += (dir === 'OUT' ? -(parseFloat(qty)||0) : (parseFloat(qty)||0));
+  const el = document.getElementById('do-balance-display');
+  if (el) el.textContent = bal + ' pcs';
+}
+
+// Live balance update on qty change for steel
+document.addEventListener('input', e => {
+  if (e.target.id === 'do-vol' && curDOType === 'Steel') doCalcBalance(e.target.value, curInOut);
+});
+
+function saveDO() {
+  const date    = document.getElementById('do-date').value;
+  const site    = document.getElementById('do-site').value.trim();
+  const vol     = parseFloat(document.getElementById('do-vol').value);
+  const company = document.getElementById('do-company').value.trim();
+  if (!date || !site || isNaN(vol)) { toast('Date, site and volume required', 'warn'); return; }
+
+  // Calculate steel balance
+  let balance = null;
+  if (curDOType === 'Steel') {
+    const existing = ld.deliveries.filter(d => d.projectCode === curProj.code && d.doType === 'Steel' && String(d.id) !== String(editDOId || ''));
+    balance = existing.reduce((s, d) => s + (d.inOut === 'OUT' ? -(parseFloat(d.volume)||0) : (parseFloat(d.volume)||0)), 0);
+    balance += curInOut === 'OUT' ? -vol : vol;
+  }
+
+  const rec = {
+    id:          editDOId || uid(),
+    projectCode: document.getElementById('do-site').value || null,
+    doType:      curDOType,
+    isLocked:    true,
+    date,
+    siteName:    site,
+    description: document.getElementById('do-desc').value.trim() || curDOType,
+    volume:      vol,
+    unit:        DO_TYPES[curDOType]?.unit || '',
+    company,
+    doNumber:    document.getElementById('do-num').value.trim() || null,
+    vehicleNum:  curDOType === 'Concrete' ? document.getElementById('do-vehicle').value.trim() || null : null,
+    material:    curDOType === 'Concrete' ? document.getElementById('do-material').value.trim() || null : null,
+    inOut:       curDOType === 'Steel' ? curInOut : null,
+    balance,
+    remarks:     document.getElementById('do-remarks').value.trim() || null,
+    appModified: new Date().toISOString()
+  };
+
+  const idx = ld.deliveries.findIndex(d => String(d.id) === String(rec.id));
+  if (idx >= 0) ld.deliveries[idx] = rec; else ld.deliveries.push(rec);
+  sv();
+  renderDOList();
+  renderDOTotals();
+  updDOHomeCount();
+  celebrate('DO Saved!', rec.volume + ' ' + rec.unit + ' — ' + rec.doType);
+  nav('s-do-list');
+}
+
+function delDO() {
+  if (!isAdmin) { toast('Admin required', 'warn'); return; }
+  const r = ld.deliveries.find(d => String(d.id) === String(editDOId));
+  adminConfirm('Delete ' + (r?.doType || '') + ' DO — ' + (r?.siteName || '') + ' ' + (r?.volume || '') + ' ' + (r?.unit || ''), () => {
+    ld.deliveries = ld.deliveries.filter(d => String(d.id) !== String(editDOId));
+    sv(); renderDOList(); renderDOTotals(); updDOHomeCount();
+    toast('Deleted', 'ok'); nav('s-do-list');
+  });
+}
+
+
+
 </script>
 
 <!-- ═══════════ CELEBRATION OVERLAY ═══════════ -->
@@ -2071,5 +2434,111 @@ setTimeout(() => {
     <div class="celeb-sub" id="celeb-sub">Data synced to Supabase</div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════
+     DELIVERY ORDER LIST SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="s-do-list" class="screen">
+  <div class="hdr hdr-dark">
+    <button class="hdr-btn" onclick="nav('s-home')">&#8249;</button>
+    <div><div class="hdr-title">Delivery Orders</div><div class="hdr-sub" id="do-list-sub">—</div></div>
+    <div style="min-width:40px"></div>
+  </div>
+  <!-- Totals strip -->
+  <div id="do-totals-strip" style="flex-shrink:0;overflow-x:auto;padding:10px 14px 8px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.07);display:flex;gap:8px;scrollbar-width:none"></div>
+  <!-- Filter bar -->
+  <div style="flex-shrink:0;padding:8px 14px 6px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:8px;align-items:center">
+    <select class="sel" id="do-filter-type" onchange="renderDOList()" style="flex:1;height:36px;font-size:13px">
+      <option value="">All types</option>
+      <option value="Diesel">Diesel</option>
+      <option value="Vacuum">Vacuum</option>
+      <option value="Soil">Soil</option>
+      <option value="Concrete">Concrete</option>
+      <option value="Cement">Cement</option>
+      <option value="Steel">Steel</option>
+    </select>
+    <input type="month" class="inp" id="do-filter-month" onchange="renderDOList()" style="flex:1;height:36px;font-size:13px">
+  </div>
+  <div class="scroll-np"><div id="do-list"></div></div>
+  <button class="fab fab-orange" id="do-fab" onclick="openDOForm(null)">+</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     DELIVERY ORDER FORM SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="s-do-form" class="screen">
+  <div class="hdr hdr-dark">
+    <button class="hdr-btn" onclick="nav('s-do-list')">&#8249;</button>
+    <div><div class="hdr-title" id="do-form-title">New Delivery Order</div></div>
+    <div style="min-width:40px"></div>
+  </div>
+  <div class="scroll">
+    <div id="do-lk-banner" style="display:none" class="lk-banner">
+      <span class="lk-ico">&#128274;</span>
+      <div class="lk-txt"><b>Entry Locked</b><span>Saved — admin required to delete this entry</span></div>
+    </div>
+    <div class="slbl">DO Type</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px" id="do-type-btns">
+      <button class="do-type-btn" data-type="Diesel"   onclick="setDOType('Diesel')"  >⛽ Diesel</button>
+      <button class="do-type-btn" data-type="Vacuum"   onclick="setDOType('Vacuum')"  >🌀 Vacuum</button>
+      <button class="do-type-btn" data-type="Soil"     onclick="setDOType('Soil')"    >🪨 Soil</button>
+      <button class="do-type-btn" data-type="Concrete" onclick="setDOType('Concrete')">🏗 Concrete</button>
+      <button class="do-type-btn" data-type="Cement"   onclick="setDOType('Cement')"  >🧱 Cement</button>
+      <button class="do-type-btn" data-type="Steel"    onclick="setDOType('Steel')"   >🔩 Steel</button>
+    </div>
+
+    <div class="slbl">Details</div>
+    <div class="fg2">
+      <div><label class="lbl req">Date</label><input class="inp" id="do-date" type="date"></div>
+      <div><label class="lbl req">Project Site</label>
+        <select class="sel" id="do-site">
+          <option value="">— select project —</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="lbl">Description</label><input class="inp" id="do-desc" type="text" placeholder="e.g. Diesel, OPC, Slurry Disposal"></div>
+    <div class="fg2">
+      <div><label class="lbl req" id="do-vol-lbl">Volume / Qty</label><input class="inp" id="do-vol" type="number" step="0.01" placeholder="0"></div>
+      <div><label class="lbl">Unit</label><div class="ro" id="do-unit-display" style="font-size:17px;font-weight:800;color:var(--k-orange)">—</div></div>
+    </div>
+    <div class="fg"><label class="lbl req">Company / Supplier</label><input class="inp" id="do-company" type="text" placeholder="Supplier name" list="do-company-dl"><datalist id="do-company-dl"></datalist></div>
+    <div class="fg"><label class="lbl">DO Number</label><input class="inp" id="do-num" type="text" placeholder="Delivery order number" autocomplete="off"></div>
+
+    <!-- Concrete-specific -->
+    <div id="do-concrete-fields" style="display:none">
+      <div class="fg2">
+        <div><label class="lbl">Vehicle No.</label><input class="inp" id="do-vehicle" type="text" placeholder="e.g. SBS1234A"></div>
+        <div><label class="lbl">Material Grade</label><input class="inp" id="do-material" type="text" placeholder="e.g. S3(100-150MM)"></div>
+      </div>
+    </div>
+
+    <!-- Steel-specific -->
+    <div id="do-steel-fields" style="display:none">
+      <div class="fg2">
+        <div><label class="lbl">In / Out</label>
+          <div style="display:flex;gap:8px;margin-top:2px">
+            <button id="do-in-btn"  style="flex:1;height:44px;background:var(--k-navy);color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer" onclick="setInOut('IN')">&#8679; IN</button>
+            <button id="do-out-btn" style="flex:1;height:44px;background:rgba(255,255,255,.05);color:var(--slate);border:1.5px solid rgba(255,255,255,.1);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer" onclick="setInOut('OUT')">&#8681; OUT</button>
+          </div>
+        </div>
+        <div><label class="lbl">Balance</label><div class="ro" id="do-balance-display">—</div></div>
+      </div>
+    </div>
+
+    <div class="fg"><label class="lbl">Remarks</label><input class="inp" id="do-remarks" type="text" placeholder="Optional"></div>
+
+    <div style="height:12px"></div>
+    <button class="btn btn-orange" id="do-save-btn" onclick="saveDO()">Save Delivery Order</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-ghost" onclick="nav('s-do-list')">Cancel</button>
+
+    <!-- Admin delete -->
+    <div id="do-admin-del" style="display:none;margin-top:10px">
+      <button class="btn btn-danger" onclick="delDO()">&#128465; Delete Record</button>
+    </div>
+    <div style="height:24px"></div>
+  </div>
+</div>
+
 </body>
 </html>
